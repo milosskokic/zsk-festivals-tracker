@@ -1,0 +1,199 @@
+{
+  "festivals": [
+    {
+      "id": "academiaa",
+      "name": "AcademIAA",
+      "url": "https://iaa.rs/academiaa-2026/",
+      "deadline_date": "2026-08-15",
+      "deadline_raw": "Zatvaranje prijava: 15. avgust",
+      "status": "open",
+      "notes": "Applications opened 8 June. Two-stage selection: results 18 Aug and 28 Aug, program starts 4 Sept.",
+      "last_checked": "2026-08-05",
+      "last_changed": "2026-08-05",
+      "last_error": null,
+      "history": [
+        {"checked": "2026-08-05", "deadline_date": "2026-08-15", "note": "initial"}
+      ]
+    },
+    {
+      "id": "golden-drum",
+      "name": "Golden Drum",
+      "url": "https://www.goldendrum.com",
+      "deadline_date": null,
+      "deadline_raw": "Call for entries opens 26 August 2026",
+      "status": "tba",
+      "notes": "Main competition entry deadline not yet published; call for entries opens 26 Aug 2026. Festival takes place 12-13 Oct 2026 in Portoroz.",
+      "last_checked": "2026-08-05",
+      "last_changed": "2026-08-05",
+      "last_error": null,
+      "history": [
+        {"checked": "2026-08-05", "deadline_date": null, "note": "initial"}
+      ]
+    },
+    {
+      "id": "golden-drum-young-drummers",
+      "name": "Golden Drum — Young Drummers",
+      "url": "https://www.goldendrum.com/competition/young-drummers-competition",
+      "deadline_date": "2026-09-09",
+      "deadline_raw": "ENTRY DEADLINE 9 September 2026",
+      "status": "open",
+      "notes": "Festival takes place 12-13 Oct 2026 in Portoroz.",
+      "last_checked": "2026-08-05",
+      "last_changed": "2026-08-05",
+      "last_error": null,
+      "history": [
+        {"checked": "2026-08-05", "deadline_date": "2026-09-09", "note": "initial"}
+      ]
+    },
+    {
+      "id": "kaktus",
+      "name": "Kaktus",
+      "url": "https://kaktus.rs",
+      "deadline_date": "2026-09-21",
+      "deadline_raw": "Rok za dostavljanje radova je 21. septembar 2026. godine do ponoći.",
+      "status": "open",
+      "notes": "Jury list published by 15 Sept 2026; finalists announced at least 5 days before ceremony.",
+      "last_checked": "2026-08-05",
+      "last_changed": "2026-08-05",
+      "last_error": null,
+      "history": [
+        {"checked": "2026-08-05", "deadline_date": "2026-09-21", "note": "initial"}
+      ]
+    },
+    {
+      "id": "somo-borac",
+      "name": "SoMo Borac",
+      "url": "https://somoborac.com/prijavite-se/",
+      "deadline_date": "2026-09-23",
+      "deadline_raw": "Svoje radove možete poslati do 23.09.2026.",
+      "status": "open",
+      "notes": "Early-bird pricing (€165/entry) until 1 Sept 2026, then €215/entry until the final deadline.",
+      "last_checked": "2026-08-05",
+      "last_changed": "2026-08-05",
+      "last_error": null,
+      "history": [
+        {"checked": "2026-08-05", "deadline_date": "2026-09-23", "note": "initial"}
+      ]
+    },
+    {
+      "id": "kaktus-talents",
+      "name": "Kaktus Talents",
+      "url": "https://kaktus.rs/kaktus-talents-award-2026/",
+      "deadline_date": "2026-10-07",
+      "deadline_raw": "Krajnji rok za slanje prezentacije je 07.10. do ponoći.",
+      "status": "open",
+      "notes": "Team registration open until 25 Sept 2026; final presentation submission due 7 Oct 2026.",
+      "last_checked": "2026-08-05",
+      "last_changed": "2026-08-05",
+      "last_error": null,
+      "history": [
+        {"checked": "2026-08-05", "deadline_date": "2026-10-07", "note": "initial"}
+      ]
+    },
+    {
+      "id": "kampanje-sa-svrhom",
+      "name": "Kampanje sa svrhom",
+      "url": "https://kampanjesasvrhom.com/kampanje-sa-svrhom-2026/",
+      "deadline_date": null,
+      "deadline_raw": "Konkurs za prijavu radova biće raspisan početkom septembra 2026. godine",
+      "status": "tba",
+      "notes": "Call for entries not yet open; awards ceremony scheduled 20 Nov 2026 (International Children's Day).",
+      "last_checked": "2026-08-05",
+      "last_changed": "2026-08-05",
+      "last_error": null,
+      "history": [
+        {"checked": "2026-08-05", "deadline_date": null, "note": "initial"}
+      ]
+    },
+    {
+      "id": "ueps",
+      "name": "UEPS",
+      "url": "https://ueps.org.rs/vesti/",
+      "deadline_date": null,
+      "deadline_raw": null,
+      "status": "tba",
+      "notes": "No 2026 call-for-entries deadline visible on the news page yet; only past award references found.",
+      "last_checked": "2026-08-05",
+      "last_changed": "2026-08-05",
+      "last_error": null,
+      "history": [
+        {"checked": "2026-08-05", "deadline_date": null, "note": "initial"}
+      ]
+    },
+    {
+      "id": "balcannes",
+      "name": "BalCannes",
+      "url": "https://danikomunikacija.com/awards/balcannes",
+      "deadline_date": null,
+      "deadline_raw": null,
+      "status": "tba",
+      "notes": "No entry deadline visible on the awards page; page references 'DK2026' season and event dates 7-10 May (likely the Dani komunikacija event itself, not a submission deadline). Rules & Guidelines subpage may hold the actual deadline.",
+      "last_checked": "2026-08-05",
+      "last_changed": "2026-08-05",
+      "last_error": null,
+      "history": [
+        {"checked": "2026-08-05", "deadline_date": null, "note": "initial"}
+      ]
+    },
+    {
+      "id": "effie-srbija",
+      "name": "Effie Srbija",
+      "url": "https://effie.rs",
+      "deadline_date": null,
+      "deadline_raw": null,
+      "status": "tba",
+      "notes": "Homepage shows 'Kategorije 2026' and a 'Prijavi rad' CTA linking to /prijava-i-kategorije/, but no deadline date visible yet.",
+      "last_checked": "2026-08-05",
+      "last_changed": "2026-08-05",
+      "last_error": null,
+      "history": [
+        {"checked": "2026-08-05", "deadline_date": null, "note": "initial"}
+      ]
+    },
+    {
+      "id": "young-lions-srbija",
+      "name": "Young Lions Srbija",
+      "url": "https://canneslions.rs",
+      "deadline_date": "2026-03-31",
+      "deadline_raw": "Takmičarski timovi na takmičenje se mogu prijaviti do 31. marta 2026. godine",
+      "status": "closed",
+      "notes": "This deadline has already passed. Next edition's dates not yet published as of this check.",
+      "last_checked": "2026-08-05",
+      "last_changed": "2026-08-05",
+      "last_error": null,
+      "history": [
+        {"checked": "2026-08-05", "deadline_date": "2026-03-31", "note": "initial — deadline already passed"}
+      ]
+    },
+    {
+      "id": "disrupt-awards",
+      "name": "Disrupt Awards",
+      "url": "https://adamstudio.rs",
+      "deadline_date": null,
+      "deadline_raw": null,
+      "status": "tba",
+      "notes": "Site returned a connection error on this check; could not confirm the 2026 deadline. Prior editions (e.g. 2025) used a dedicated /disrupt-nagrade-YYYY/ URL pattern — worth checking adamstudio.rs/disrupt-nagrade-2026/ directly.",
+      "last_checked": "2026-08-05",
+      "last_changed": "2026-08-05",
+      "last_error": "ECONNRESET on fetch",
+      "history": [
+        {"checked": "2026-08-05", "deadline_date": null, "note": "initial — site unreachable"}
+      ]
+    },
+    {
+      "id": "mixx-awards",
+      "name": "MIXX Awards",
+      "url": "https://mixx.rs",
+      "deadline_date": "2026-05-05",
+      "deadline_raw": "Agencije, brendovi i izdavači mogu prijaviti svoje radove 5. maja u 23:59 (produženi rok).",
+      "status": "closed",
+      "notes": "Deadline was extended once to 5 May 2026, 23:59, and has now passed. Winners announced 5 June 2026 at Digital Day.",
+      "last_checked": "2026-08-05",
+      "last_changed": "2026-08-05",
+      "last_error": null,
+      "history": [
+        {"checked": "2026-08-05", "deadline_date": "2026-05-05", "note": "initial — deadline already passed"}
+      ]
+    }
+  ]
+}

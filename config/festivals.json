@@ -1,0 +1,82 @@
+{
+  "festivals": [
+    {
+      "id": "academiaa",
+      "name": "AcademIAA",
+      "category": "Education / Young talent",
+      "url": "https://iaa.rs/academiaa-2026/"
+    },
+    {
+      "id": "golden-drum",
+      "name": "Golden Drum",
+      "category": "Regional creative festival",
+      "url": "https://www.goldendrum.com"
+    },
+    {
+      "id": "golden-drum-young-drummers",
+      "name": "Golden Drum — Young Drummers",
+      "category": "Young talent competition",
+      "url": "https://www.goldendrum.com/competition/young-drummers-competition"
+    },
+    {
+      "id": "kaktus",
+      "name": "Kaktus",
+      "category": "National creative festival (Serbia)",
+      "url": "https://kaktus.rs"
+    },
+    {
+      "id": "somo-borac",
+      "name": "SoMo Borac",
+      "category": "Regional social/digital marketing festival",
+      "url": "https://somoborac.com/prijavite-se/"
+    },
+    {
+      "id": "kaktus-talents",
+      "name": "Kaktus Talents",
+      "category": "Young talent competition",
+      "url": "https://kaktus.rs/kaktus-talents-award-2026/"
+    },
+    {
+      "id": "kampanje-sa-svrhom",
+      "name": "Kampanje sa svrhom",
+      "category": "Purpose-driven campaigns award (Serbia)",
+      "url": "https://kampanjesasvrhom.com/kampanje-sa-svrhom-2026/"
+    },
+    {
+      "id": "ueps",
+      "name": "UEPS",
+      "category": "Industry association awards (Serbia)",
+      "url": "https://ueps.org.rs/vesti/"
+    },
+    {
+      "id": "balcannes",
+      "name": "BalCannes",
+      "category": "Regional creative festival (Dani komunikacija)",
+      "url": "https://danikomunikacija.com/awards/balcannes"
+    },
+    {
+      "id": "effie-srbija",
+      "name": "Effie Srbija",
+      "category": "Marketing effectiveness awards (Serbia)",
+      "url": "https://effie.rs"
+    },
+    {
+      "id": "young-lions-srbija",
+      "name": "Young Lions Srbija",
+      "category": "Young talent competition (Cannes Lions national)",
+      "url": "https://canneslions.rs"
+    },
+    {
+      "id": "disrupt-awards",
+      "name": "Disrupt Awards",
+      "category": "Innovation / disruption awards (Serbia)",
+      "url": "https://adamstudio.rs"
+    },
+    {
+      "id": "mixx-awards",
+      "name": "MIXX Awards",
+      "category": "Digital marketing awards (Serbia)",
+      "url": "https://mixx.rs"
+    }
+  ]
+}
