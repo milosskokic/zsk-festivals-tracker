@@ -26,12 +26,6 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 }
 
-function formatDateShort(dateStr) {
-  if (!dateStr) return null;
-  const d = new Date(dateStr + 'T00:00:00Z');
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
-}
-
 function escapeHtml(str) {
   if (str == null) return '';
   return String(str)
@@ -61,11 +55,11 @@ enriched.sort((a, b) => {
 });
 
 const SECTIONS = [
-  { key: 'urgent', label: 'Final days', hint: '7 days or less' },
-  { key: 'soon', label: 'Closing soon', hint: 'within 30 days' },
-  { key: 'open', label: 'Open', hint: 'more than 30 days left' },
-  { key: 'tba', label: 'TBA', hint: 'deadline not yet published' },
-  { key: 'closed', label: 'Closed', hint: 'past deadline' },
+  { key: 'urgent', label: 'final days', hint: '7 days or less' },
+  { key: 'soon', label: 'closing soon', hint: 'within 30 days' },
+  { key: 'open', label: 'open', hint: 'more than 30 days left' },
+  { key: 'tba', label: 'tba', hint: 'deadline not yet published' },
+  { key: 'closed', label: 'closed', hint: 'past deadline' },
 ];
 
 function daysLabel(days) {
@@ -82,10 +76,10 @@ function wasChangedToday(f) {
 
 function card(f) {
   const changedBadge = wasChangedToday(f) && f.history && f.history.length > 1
-    ? `<span class="badge badge-changed">Updated today</span>`
+    ? `<span class="badge badge-changed">updated today</span>`
     : '';
   const errorBadge = f.last_error
-    ? `<span class="badge badge-error" title="${escapeHtml(f.last_error)}">Check failed</span>`
+    ? `<span class="badge badge-error" title="${escapeHtml(f.last_error)}">check failed</span>`
     : '';
   return `
     <a class="card urgency-${f.urgency}" href="${escapeHtml(f.url)}" target="_blank" rel="noopener noreferrer"
@@ -100,7 +94,7 @@ function card(f) {
       </div>
       ${f.notes ? `<div class="notes">${escapeHtml(f.notes)}</div>` : ''}
       <div class="card-footer">
-        <span class="checked">Checked ${f.last_checked}</span>
+        <span class="checked">checked ${f.last_checked}</span>
         ${changedBadge}${errorBadge}
       </div>
     </a>`;
@@ -128,7 +122,7 @@ const sectionsHtml = SECTIONS.filter(s => counts[s.key] > 0).map(s => `
 const lastUpdated = enriched.reduce((max, f) => (f.last_checked > max ? f.last_checked : max), '');
 
 const FAVICON = 'data:image/svg+xml,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="%23202024"/><text x="50" y="66" font-size="58" text-anchor="middle" fill="%234bcf7f" font-family="Arial, sans-serif" font-weight="700">Z</text></svg>'
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%23ffffff" stroke="%231d1d1e" stroke-width="4"/><text x="50" y="68" font-size="52" text-anchor="middle" fill="%23fe153f" font-family="Arial, sans-serif" font-weight="800">ż</text></svg>'
 );
 
 const html = `<!doctype html>
@@ -136,128 +130,151 @@ const html = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ZSK Festivals Tracker</title>
+<title>żiśka — festivals tracker</title>
 <link rel="icon" href="${FAVICON}">
 <style>
   :root {
     color-scheme: light dark;
-    --bg: #f4f4f7;
+    --bg: #ffffff;
     --surface: #ffffff;
-    --surface-hover: #fbfbfd;
-    --text: #17171b;
-    --muted: #6b6b75;
-    --border: #e6e6ec;
-    --accent: #4a4af0;
-    --urgent: #d64545;
-    --soon: #c98a1f;
-    --open-color: #2f9e58;
-    --tba: #7a7a85;
-    --closed: #a3a3ab;
-    --shadow: 0 1px 2px rgba(20,20,30,0.04), 0 8px 20px rgba(20,20,30,0.03);
-    --shadow-hover: 0 4px 10px rgba(20,20,30,0.06), 0 16px 32px rgba(20,20,30,0.07);
+    --surface-hover: #fafafa;
+    --text: #1d1d1e;
+    --muted: #74747c;
+    --faint: #a9a9b1;
+    --border: #e7e7ea;
+    --border-strong: #1d1d1e;
+    --brand: #fe153f;
+    --soon: #1d1d1e;
+    --shadow: 0 1px 2px rgba(20,20,30,0.03);
+    --shadow-hover: 0 10px 24px rgba(20,20,30,0.08);
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #131316;
-      --surface: #1c1c20;
-      --surface-hover: #212126;
-      --text: #edeef0;
-      --muted: #9b9ba5;
-      --border: #2b2b31;
-      --accent: #8f8fff;
-      --urgent: #ff6b6b;
-      --soon: #f0b429;
-      --open-color: #4bcf7f;
-      --tba: #9b9ba5;
-      --closed: #6b6b75;
-      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.25);
-      --shadow-hover: 0 4px 12px rgba(0,0,0,0.35), 0 20px 40px rgba(0,0,0,0.35);
+      --surface: #1a1a1d;
+      --surface-hover: #202024;
+      --text: #f2f2f3;
+      --muted: #a3a3ac;
+      --faint: #6b6b75;
+      --border: #2c2c30;
+      --border-strong: #f2f2f3;
+      --brand: #ff4d6d;
+      --soon: #f2f2f3;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-hover: 0 12px 28px rgba(0,0,0,0.4);
     }
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: helvetica-neue-lt-pro, "Helvetica Neue", Helvetica, Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
-    padding: 0 1.25rem 4rem;
   }
-  .wrap { max-width: 1120px; margin: 0 auto; }
-  header {
-    padding: 2.5rem 0 1.5rem;
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+
+  header.top {
+    border-bottom: 2px solid var(--border-strong);
+    padding: 1.6rem 0;
+    margin-bottom: 0.5rem;
   }
-  h1 {
-    font-size: 1.85rem;
-    margin: 0 0 0.3rem;
-    letter-spacing: -0.02em;
+  .top-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  .wordmark {
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: var(--brand);
+    letter-spacing: -0.01em;
+    text-decoration: none;
+  }
+  .wordmark span { color: var(--text); }
+  .tagline {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    text-transform: lowercase;
   }
   .subtitle {
     color: var(--muted);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    max-width: 1120px;
+    margin: 0.9rem auto 0;
+    padding: 0 1.5rem;
   }
+
   .controls {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
-    margin-top: 1.4rem;
+    margin-top: 1.6rem;
   }
   .search-input {
     flex: 1 1 220px;
     background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 0.55rem 0.8rem;
+    border: 2px solid var(--border-strong);
+    border-radius: 0;
+    padding: 0.6rem 0.85rem;
     font-size: 0.9rem;
+    font-weight: 600;
     color: var(--text);
     outline: none;
   }
-  .search-input:focus {
-    border-color: var(--accent);
-  }
+  .search-input::placeholder { color: var(--faint); font-weight: 500; }
+  .search-input:focus { border-color: var(--brand); }
+
   .stat-chip {
     display: inline-flex;
     align-items: baseline;
     gap: 0.35rem;
     background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 0.4rem 0.85rem;
-    font-size: 0.8rem;
-    color: var(--muted);
+    border: 2px solid var(--border-strong);
+    border-radius: 0;
+    padding: 0.42rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--text);
     cursor: pointer;
     font-family: inherit;
-    transition: transform 0.1s ease, box-shadow 0.15s ease;
+    text-transform: lowercase;
+    transition: background 0.15s ease, color 0.15s ease;
   }
-  .stat-chip:hover { box-shadow: var(--shadow); }
+  .stat-chip .stat-count { font-weight: 800; }
+  .stat-chip:hover { background: var(--surface-hover); }
   .stat-chip.active {
-    border-color: currentColor;
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
   }
-  .stat-chip .stat-count {
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: var(--text);
-  }
-  .stat-urgent .stat-count { color: var(--urgent); }
-  .stat-soon .stat-count { color: var(--soon); }
-  .stat-open .stat-count { color: var(--open-color); }
-  .stat-tba .stat-count { color: var(--tba); }
-  .stat-closed .stat-count { color: var(--closed); }
 
-  .section { margin-top: 2.2rem; }
+  .section { margin-top: 2.6rem; }
   .section-head {
     display: flex;
     align-items: baseline;
-    gap: 0.6rem;
-    margin-bottom: 0.9rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border);
+    gap: 0.7rem;
+    margin-bottom: 1.1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--border-strong);
   }
   .section-head h2 {
-    font-size: 1.05rem;
+    font-size: 1.6rem;
+    font-weight: 800;
     margin: 0;
+    letter-spacing: -0.01em;
+    text-transform: lowercase;
   }
+  .section[data-section="urgent"] .section-head h2 { color: var(--brand); }
   .section-hint {
     color: var(--muted);
     font-size: 0.78rem;
@@ -266,46 +283,46 @@ const html = `<!doctype html>
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-    gap: 0.9rem;
+    gap: 1rem;
   }
   .card {
     display: block;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.05rem 1.15rem;
+    border-radius: 0;
+    padding: 1.1rem 1.2rem;
     text-decoration: none;
     color: var(--text);
-    border-left: 4px solid var(--closed);
+    border-left: 3px solid var(--border);
     box-shadow: var(--shadow);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   }
   .card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-hover);
-    background: var(--surface-hover);
+    border-left-color: var(--text);
   }
-  .card.urgency-urgent { border-left-color: var(--urgent); }
-  .card.urgency-soon { border-left-color: var(--soon); }
-  .card.urgency-open { border-left-color: var(--open-color); }
-  .card.urgency-tba { border-left-color: var(--tba); }
-  .card.urgency-closed { border-left-color: var(--closed); opacity: 0.6; }
+  .card.urgency-urgent { border-left-color: var(--brand); }
+  .card.urgency-urgent:hover { border-left-color: var(--brand); }
+  .card.urgency-soon { border-left-color: var(--text); }
+  .card.urgency-closed { opacity: 0.55; }
   .card-top {
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
   }
   .card-top h3 {
-    font-size: 1.02rem;
+    font-size: 1.05rem;
+    font-weight: 700;
     margin: 0;
     line-height: 1.3;
   }
   .category {
-    font-size: 0.74rem;
+    font-size: 0.72rem;
     color: var(--muted);
   }
   .deadline-row {
-    margin-top: 0.75rem;
+    margin-top: 0.8rem;
     display: flex;
     align-items: baseline;
     justify-content: space-between;
@@ -314,40 +331,41 @@ const html = `<!doctype html>
   }
   .deadline-date {
     font-size: 1.05rem;
-    font-weight: 600;
+    font-weight: 700;
   }
   .days-left {
-    font-size: 0.78rem;
-    font-weight: 600;
+    font-size: 0.76rem;
+    font-weight: 700;
     white-space: nowrap;
+    text-transform: lowercase;
   }
-  .days-urgent { color: var(--urgent); }
-  .days-soon { color: var(--soon); }
-  .days-open { color: var(--open-color); }
+  .days-urgent { color: var(--brand); }
+  .days-soon, .days-open { color: var(--text); }
   .days-tba, .days-closed { color: var(--muted); }
   .notes {
     font-size: 0.8rem;
     color: var(--muted);
-    margin-top: 0.55rem;
+    margin-top: 0.6rem;
     line-height: 1.45;
   }
   .card-footer {
-    margin-top: 0.85rem;
+    margin-top: 0.9rem;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.4rem;
-    font-size: 0.72rem;
-    color: var(--muted);
+    font-size: 0.7rem;
+    color: var(--faint);
+    text-transform: lowercase;
   }
   .badge {
-    font-size: 0.68rem;
-    font-weight: 600;
+    font-size: 0.66rem;
+    font-weight: 700;
     padding: 0.15rem 0.5rem;
-    border-radius: 999px;
+    text-transform: lowercase;
   }
-  .badge-changed { background: color-mix(in srgb, var(--open-color) 20%, transparent); color: var(--open-color); }
-  .badge-error { background: color-mix(in srgb, var(--urgent) 20%, transparent); color: var(--urgent); }
+  .badge-changed { background: var(--text); color: var(--bg); }
+  .badge-error { background: var(--brand); color: #fff; }
   .empty-state {
     text-align: center;
     color: var(--muted);
@@ -355,31 +373,36 @@ const html = `<!doctype html>
     font-size: 0.9rem;
     display: none;
   }
-  footer {
-    margin: 3rem auto 0;
+  footer.bottom {
+    margin: 3.5rem auto 0;
+    max-width: 1120px;
+    padding: 1.5rem 1.5rem 0;
+    border-top: 2px solid var(--border-strong);
     color: var(--muted);
-    font-size: 0.8rem;
-    text-align: center;
+    font-size: 0.78rem;
   }
 </style>
 </head>
 <body>
-<div class="wrap">
-<header>
-  <h1>ZSK Festivals Tracker</h1>
+<header class="top">
+  <div class="top-row">
+    <a class="wordmark" href="#">żiśka<span>.tracker</span></a>
+    <span class="tagline">festivals &amp; deadlines</span>
+  </div>
   <div class="subtitle">Advertising festival &amp; competition deadlines — last updated ${lastUpdated}</div>
+</header>
+<div class="wrap">
   <div class="controls">
-    <input class="search-input" type="text" id="search" placeholder="Filter by name or category…">
+    <input class="search-input" type="text" id="search" placeholder="filter by name or category…">
     ${statBar}
   </div>
-</header>
 
 ${sectionsHtml}
 
 <div class="empty-state" id="empty-state">No festivals match your filter.</div>
 
 </div>
-<footer>Generated automatically. Deadlines are extracted from each organizer's public site and may change without notice — click through to confirm before submitting.</footer>
+<footer class="bottom">Generated automatically. Deadlines are extracted from each organizer's public site and may change without notice — click through to confirm before submitting.</footer>
 <script>
 (function () {
   var search = document.getElementById('search');
