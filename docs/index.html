@@ -4,130 +4,202 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ZSK Festivals Tracker</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2222%22%20fill%3D%22%2523202024%22%2F%3E%3Ctext%20x%3D%2250%22%20y%3D%2266%22%20font-size%3D%2258%22%20text-anchor%3D%22middle%22%20fill%3D%22%25234bcf7f%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-weight%3D%22700%22%3EZ%3C%2Ftext%3E%3C%2Fsvg%3E">
 <style>
   :root {
     color-scheme: light dark;
-    --bg: #f5f5f7;
+    --bg: #f4f4f7;
     --surface: #ffffff;
-    --text: #1a1a1e;
+    --surface-hover: #fbfbfd;
+    --text: #17171b;
     --muted: #6b6b75;
-    --border: #e3e3e8;
+    --border: #e6e6ec;
+    --accent: #4a4af0;
     --urgent: #d64545;
     --soon: #c98a1f;
     --open-color: #2f9e58;
     --tba: #7a7a85;
     --closed: #a3a3ab;
+    --shadow: 0 1px 2px rgba(20,20,30,0.04), 0 8px 20px rgba(20,20,30,0.03);
+    --shadow-hover: 0 4px 10px rgba(20,20,30,0.06), 0 16px 32px rgba(20,20,30,0.07);
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #16161a;
-      --surface: #202024;
-      --text: #ececef;
-      --muted: #9d9da8;
-      --border: #2e2e34;
+      --bg: #131316;
+      --surface: #1c1c20;
+      --surface-hover: #212126;
+      --text: #edeef0;
+      --muted: #9b9ba5;
+      --border: #2b2b31;
+      --accent: #8f8fff;
       --urgent: #ff6b6b;
       --soon: #f0b429;
       --open-color: #4bcf7f;
-      --tba: #9d9da8;
+      --tba: #9b9ba5;
       --closed: #6b6b75;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.25);
+      --shadow-hover: 0 4px 12px rgba(0,0,0,0.35), 0 20px 40px rgba(0,0,0,0.35);
     }
   }
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
-    padding: 2rem 1.25rem 4rem;
+    padding: 0 1.25rem 4rem;
   }
+  .wrap { max-width: 1120px; margin: 0 auto; }
   header {
-    max-width: 1100px;
-    margin: 0 auto 2rem;
+    padding: 2.5rem 0 1.5rem;
   }
   h1 {
-    font-size: 1.75rem;
-    margin: 0 0 0.25rem;
+    font-size: 1.85rem;
+    margin: 0 0 0.3rem;
+    letter-spacing: -0.02em;
   }
   .subtitle {
     color: var(--muted);
     font-size: 0.95rem;
   }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.4rem;
+  }
+  .search-input {
+    flex: 1 1 220px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.9rem;
+    color: var(--text);
+    outline: none;
+  }
+  .search-input:focus {
+    border-color: var(--accent);
+  }
+  .stat-chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.1s ease, box-shadow 0.15s ease;
+  }
+  .stat-chip:hover { box-shadow: var(--shadow); }
+  .stat-chip.active {
+    border-color: currentColor;
+  }
+  .stat-chip .stat-count {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  .stat-urgent .stat-count { color: var(--urgent); }
+  .stat-soon .stat-count { color: var(--soon); }
+  .stat-open .stat-count { color: var(--open-color); }
+  .stat-tba .stat-count { color: var(--tba); }
+  .stat-closed .stat-count { color: var(--closed); }
+
+  .section { margin-top: 2.2rem; }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-head h2 {
+    font-size: 1.05rem;
+    margin: 0;
+  }
+  .section-hint {
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
   .grid {
-    max-width: 1100px;
-    margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 0.9rem;
   }
   .card {
     display: block;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 1.1rem 1.2rem;
+    padding: 1.05rem 1.15rem;
     text-decoration: none;
     color: var(--text);
-    border-left: 5px solid var(--closed);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border-left: 4px solid var(--closed);
+    box-shadow: var(--shadow);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
   }
   .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    box-shadow: var(--shadow-hover);
+    background: var(--surface-hover);
   }
   .card.urgency-urgent { border-left-color: var(--urgent); }
   .card.urgency-soon { border-left-color: var(--soon); }
   .card.urgency-open { border-left-color: var(--open-color); }
   .card.urgency-tba { border-left-color: var(--tba); }
-  .card.urgency-closed { border-left-color: var(--closed); opacity: 0.65; }
+  .card.urgency-closed { border-left-color: var(--closed); opacity: 0.6; }
   .card-top {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.2rem;
   }
-  .card-top h2 {
-    font-size: 1.05rem;
+  .card-top h3 {
+    font-size: 1.02rem;
     margin: 0;
     line-height: 1.3;
   }
-  .pill {
-    flex-shrink: 0;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    white-space: nowrap;
+  .category {
+    font-size: 0.74rem;
+    color: var(--muted);
   }
-  .pill-urgent { background: color-mix(in srgb, var(--urgent) 18%, transparent); color: var(--urgent); }
-  .pill-soon { background: color-mix(in srgb, var(--soon) 18%, transparent); color: var(--soon); }
-  .pill-open { background: color-mix(in srgb, var(--open-color) 18%, transparent); color: var(--open-color); }
-  .pill-tba { background: color-mix(in srgb, var(--tba) 18%, transparent); color: var(--tba); }
-  .pill-closed { background: color-mix(in srgb, var(--closed) 18%, transparent); color: var(--closed); }
+  .deadline-row {
+    margin-top: 0.75rem;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
   .deadline-date {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 600;
-    margin-top: 0.7rem;
   }
   .days-left {
-    color: var(--muted);
-    font-size: 0.85rem;
-    margin-top: 0.15rem;
-  }
-  .category {
     font-size: 0.78rem;
-    color: var(--muted);
-    margin-top: 0.6rem;
+    font-weight: 600;
+    white-space: nowrap;
   }
+  .days-urgent { color: var(--urgent); }
+  .days-soon { color: var(--soon); }
+  .days-open { color: var(--open-color); }
+  .days-tba, .days-closed { color: var(--muted); }
   .notes {
     font-size: 0.8rem;
     color: var(--muted);
-    margin-top: 0.5rem;
-    line-height: 1.4;
+    margin-top: 0.55rem;
+    line-height: 1.45;
   }
   .card-footer {
-    margin-top: 0.9rem;
+    margin-top: 0.85rem;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
@@ -143,9 +215,15 @@
   }
   .badge-changed { background: color-mix(in srgb, var(--open-color) 20%, transparent); color: var(--open-color); }
   .badge-error { background: color-mix(in srgb, var(--urgent) 20%, transparent); color: var(--urgent); }
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    padding: 3rem 0;
+    font-size: 0.9rem;
+    display: none;
+  }
   footer {
-    max-width: 1100px;
-    margin: 2.5rem auto 0;
+    margin: 3rem auto 0;
     color: var(--muted);
     font-size: 0.8rem;
     text-align: center;
@@ -153,207 +231,333 @@
 </style>
 </head>
 <body>
+<div class="wrap">
 <header>
   <h1>ZSK Festivals Tracker</h1>
   <div class="subtitle">Advertising festival &amp; competition deadlines — last updated 2026-08-05</div>
-</header>
-<div class="grid">
+  <div class="controls">
+    <input class="search-input" type="text" id="search" placeholder="Filter by name or category…">
+    
+    <button type="button" class="stat-chip stat-soon" data-filter="soon">
+      <span class="stat-count">1</span>
+      <span class="stat-label">Closing soon</span>
+    </button>
 
-    <a class="card urgency-soon" href="https://iaa.rs/academiaa-2026/" target="_blank" rel="noopener noreferrer">
-      <div class="card-top">
-        <h2>AcademIAA</h2>
-        <span class="pill pill-soon">Closing soon</span>
-      </div>
-      <div class="deadline-date">15 August 2026</div>
-      <div class="days-left">11 days left</div>
+    <button type="button" class="stat-chip stat-open" data-filter="open">
+      <span class="stat-count">4</span>
+      <span class="stat-label">Open</span>
+    </button>
+
+    <button type="button" class="stat-chip stat-tba" data-filter="tba">
+      <span class="stat-count">6</span>
+      <span class="stat-label">TBA</span>
+    </button>
+
+    <button type="button" class="stat-chip stat-closed" data-filter="closed">
+      <span class="stat-count">2</span>
+      <span class="stat-label">Closed</span>
+    </button>
+  </div>
+</header>
+
+
+  <section class="section" data-section="soon">
+    <div class="section-head">
+      <h2>Closing soon</h2>
+      <span class="section-hint">within 30 days</span>
+    </div>
+    <div class="grid">
       
+    <a class="card urgency-soon" href="https://iaa.rs/academiaa-2026/" target="_blank" rel="noopener noreferrer"
+       data-name="academiaa " data-urgency="soon">
+      <div class="card-top">
+        <h3>AcademIAA</h3>
+        
+      </div>
+      <div class="deadline-row">
+        <span class="deadline-date">15 August 2026</span>
+        <span class="days-left days-soon">10 days left</span>
+      </div>
       <div class="notes">Applications opened 8 June. Two-stage selection: results 18 Aug and 28 Aug, program starts 4 Sept.</div>
       <div class="card-footer">
-        <span class="checked">Last checked: 2026-08-05</span>
+        <span class="checked">Checked 2026-08-05</span>
         
       </div>
     </a>
+    </div>
+  </section>
 
-    <a class="card urgency-open" href="https://www.goldendrum.com/competition/young-drummers-competition" target="_blank" rel="noopener noreferrer">
-      <div class="card-top">
-        <h2>Golden Drum — Young Drummers</h2>
-        <span class="pill pill-open">Open</span>
-      </div>
-      <div class="deadline-date">9 September 2026</div>
-      <div class="days-left">36 days left</div>
+  <section class="section" data-section="open">
+    <div class="section-head">
+      <h2>Open</h2>
+      <span class="section-hint">more than 30 days left</span>
+    </div>
+    <div class="grid">
       
+    <a class="card urgency-open" href="https://www.goldendrum.com/competition/young-drummers-competition" target="_blank" rel="noopener noreferrer"
+       data-name="golden drum — young drummers " data-urgency="open">
+      <div class="card-top">
+        <h3>Golden Drum — Young Drummers</h3>
+        
+      </div>
+      <div class="deadline-row">
+        <span class="deadline-date">9 September 2026</span>
+        <span class="days-left days-open">35 days left</span>
+      </div>
       <div class="notes">Festival takes place 12-13 Oct 2026 in Portoroz.</div>
       <div class="card-footer">
-        <span class="checked">Last checked: 2026-08-05</span>
+        <span class="checked">Checked 2026-08-05</span>
         
       </div>
     </a>
 
-    <a class="card urgency-open" href="https://kaktus.rs" target="_blank" rel="noopener noreferrer">
+    <a class="card urgency-open" href="https://kaktus.rs" target="_blank" rel="noopener noreferrer"
+       data-name="kaktus " data-urgency="open">
       <div class="card-top">
-        <h2>Kaktus</h2>
-        <span class="pill pill-open">Open</span>
+        <h3>Kaktus</h3>
+        
       </div>
-      <div class="deadline-date">21 September 2026</div>
-      <div class="days-left">48 days left</div>
-      
+      <div class="deadline-row">
+        <span class="deadline-date">21 September 2026</span>
+        <span class="days-left days-open">47 days left</span>
+      </div>
       <div class="notes">Jury list published by 15 Sept 2026; finalists announced at least 5 days before ceremony.</div>
       <div class="card-footer">
-        <span class="checked">Last checked: 2026-08-05</span>
+        <span class="checked">Checked 2026-08-05</span>
         
       </div>
     </a>
 
-    <a class="card urgency-open" href="https://somoborac.com/prijavite-se/" target="_blank" rel="noopener noreferrer">
+    <a class="card urgency-open" href="https://somoborac.com/prijavite-se/" target="_blank" rel="noopener noreferrer"
+       data-name="somo borac " data-urgency="open">
       <div class="card-top">
-        <h2>SoMo Borac</h2>
-        <span class="pill pill-open">Open</span>
+        <h3>SoMo Borac</h3>
+        
       </div>
-      <div class="deadline-date">23 September 2026</div>
-      <div class="days-left">50 days left</div>
-      
+      <div class="deadline-row">
+        <span class="deadline-date">23 September 2026</span>
+        <span class="days-left days-open">49 days left</span>
+      </div>
       <div class="notes">Early-bird pricing (€165/entry) until 1 Sept 2026, then €215/entry until the final deadline.</div>
       <div class="card-footer">
-        <span class="checked">Last checked: 2026-08-05</span>
+        <span class="checked">Checked 2026-08-05</span>
         
       </div>
     </a>
 
-    <a class="card urgency-open" href="https://kaktus.rs/kaktus-talents-award-2026/" target="_blank" rel="noopener noreferrer">
+    <a class="card urgency-open" href="https://kaktus.rs/kaktus-talents-award-2026/" target="_blank" rel="noopener noreferrer"
+       data-name="kaktus talents " data-urgency="open">
       <div class="card-top">
-        <h2>Kaktus Talents</h2>
-        <span class="pill pill-open">Open</span>
+        <h3>Kaktus Talents</h3>
+        
       </div>
-      <div class="deadline-date">7 October 2026</div>
-      <div class="days-left">64 days left</div>
-      
+      <div class="deadline-row">
+        <span class="deadline-date">7 October 2026</span>
+        <span class="days-left days-open">63 days left</span>
+      </div>
       <div class="notes">Team registration open until 25 Sept 2026; final presentation submission due 7 Oct 2026.</div>
       <div class="card-footer">
-        <span class="checked">Last checked: 2026-08-05</span>
+        <span class="checked">Checked 2026-08-05</span>
         
       </div>
     </a>
+    </div>
+  </section>
 
-    <a class="card urgency-tba" href="https://danikomunikacija.com/awards/balcannes" target="_blank" rel="noopener noreferrer">
-      <div class="card-top">
-        <h2>BalCannes</h2>
-        <span class="pill pill-tba">TBA</span>
-      </div>
-      <div class="deadline-date">TBA</div>
-      <div class="days-left"></div>
+  <section class="section" data-section="tba">
+    <div class="section-head">
+      <h2>TBA</h2>
+      <span class="section-hint">deadline not yet published</span>
+    </div>
+    <div class="grid">
       
+    <a class="card urgency-tba" href="https://danikomunikacija.com/awards/balcannes" target="_blank" rel="noopener noreferrer"
+       data-name="balcannes " data-urgency="tba">
+      <div class="card-top">
+        <h3>BalCannes</h3>
+        
+      </div>
+      <div class="deadline-row">
+        <span class="deadline-date">TBA</span>
+        <span class="days-left days-tba"></span>
+      </div>
       <div class="notes">No entry deadline visible on the awards page; page references 'DK2026' season and event dates 7-10 May (likely the Dani komunikacija event itself, not a submission deadline). Rules &amp; Guidelines subpage may hold the actual deadline.</div>
       <div class="card-footer">
-        <span class="checked">Last checked: 2026-08-05</span>
+        <span class="checked">Checked 2026-08-05</span>
         
       </div>
     </a>
 
-    <a class="card urgency-tba" href="https://adamstudio.rs" target="_blank" rel="noopener noreferrer">
+    <a class="card urgency-tba" href="https://adamstudio.rs" target="_blank" rel="noopener noreferrer"
+       data-name="disrupt awards " data-urgency="tba">
       <div class="card-top">
-        <h2>Disrupt Awards</h2>
-        <span class="pill pill-tba">TBA</span>
+        <h3>Disrupt Awards</h3>
+        
       </div>
-      <div class="deadline-date">TBA</div>
-      <div class="days-left"></div>
-      
+      <div class="deadline-row">
+        <span class="deadline-date">TBA</span>
+        <span class="days-left days-tba"></span>
+      </div>
       <div class="notes">Site returned a connection error on this check; could not confirm the 2026 deadline. Prior editions (e.g. 2025) used a dedicated /disrupt-nagrade-YYYY/ URL pattern — worth checking adamstudio.rs/disrupt-nagrade-2026/ directly.</div>
       <div class="card-footer">
-        <span class="checked">Last checked: 2026-08-05</span>
+        <span class="checked">Checked 2026-08-05</span>
         <span class="badge badge-error" title="ECONNRESET on fetch">Check failed</span>
       </div>
     </a>
 
-    <a class="card urgency-tba" href="https://effie.rs" target="_blank" rel="noopener noreferrer">
+    <a class="card urgency-tba" href="https://effie.rs" target="_blank" rel="noopener noreferrer"
+       data-name="effie srbija " data-urgency="tba">
       <div class="card-top">
-        <h2>Effie Srbija</h2>
-        <span class="pill pill-tba">TBA</span>
+        <h3>Effie Srbija</h3>
+        
       </div>
-      <div class="deadline-date">TBA</div>
-      <div class="days-left"></div>
-      
+      <div class="deadline-row">
+        <span class="deadline-date">TBA</span>
+        <span class="days-left days-tba"></span>
+      </div>
       <div class="notes">Homepage shows 'Kategorije 2026' and a 'Prijavi rad' CTA linking to /prijava-i-kategorije/, but no deadline date visible yet.</div>
       <div class="card-footer">
-        <span class="checked">Last checked: 2026-08-05</span>
+        <span class="checked">Checked 2026-08-05</span>
         
       </div>
     </a>
 
-    <a class="card urgency-tba" href="https://www.goldendrum.com" target="_blank" rel="noopener noreferrer">
+    <a class="card urgency-tba" href="https://www.goldendrum.com" target="_blank" rel="noopener noreferrer"
+       data-name="golden drum " data-urgency="tba">
       <div class="card-top">
-        <h2>Golden Drum</h2>
-        <span class="pill pill-tba">TBA</span>
+        <h3>Golden Drum</h3>
+        
       </div>
-      <div class="deadline-date">TBA</div>
-      <div class="days-left"></div>
-      
+      <div class="deadline-row">
+        <span class="deadline-date">TBA</span>
+        <span class="days-left days-tba"></span>
+      </div>
       <div class="notes">Main competition entry deadline not yet published; call for entries opens 26 Aug 2026. Festival takes place 12-13 Oct 2026 in Portoroz.</div>
       <div class="card-footer">
-        <span class="checked">Last checked: 2026-08-05</span>
+        <span class="checked">Checked 2026-08-05</span>
         
       </div>
     </a>
 
-    <a class="card urgency-tba" href="https://kampanjesasvrhom.com/kampanje-sa-svrhom-2026/" target="_blank" rel="noopener noreferrer">
+    <a class="card urgency-tba" href="https://kampanjesasvrhom.com/kampanje-sa-svrhom-2026/" target="_blank" rel="noopener noreferrer"
+       data-name="kampanje sa svrhom " data-urgency="tba">
       <div class="card-top">
-        <h2>Kampanje sa svrhom</h2>
-        <span class="pill pill-tba">TBA</span>
+        <h3>Kampanje sa svrhom</h3>
+        
       </div>
-      <div class="deadline-date">TBA</div>
-      <div class="days-left"></div>
-      
+      <div class="deadline-row">
+        <span class="deadline-date">TBA</span>
+        <span class="days-left days-tba"></span>
+      </div>
       <div class="notes">Call for entries not yet open; awards ceremony scheduled 20 Nov 2026 (International Children's Day).</div>
       <div class="card-footer">
-        <span class="checked">Last checked: 2026-08-05</span>
+        <span class="checked">Checked 2026-08-05</span>
         
       </div>
     </a>
 
-    <a class="card urgency-tba" href="https://ueps.org.rs/vesti/" target="_blank" rel="noopener noreferrer">
+    <a class="card urgency-tba" href="https://ueps.org.rs/vesti/" target="_blank" rel="noopener noreferrer"
+       data-name="ueps " data-urgency="tba">
       <div class="card-top">
-        <h2>UEPS</h2>
-        <span class="pill pill-tba">TBA</span>
+        <h3>UEPS</h3>
+        
       </div>
-      <div class="deadline-date">TBA</div>
-      <div class="days-left"></div>
-      
+      <div class="deadline-row">
+        <span class="deadline-date">TBA</span>
+        <span class="days-left days-tba"></span>
+      </div>
       <div class="notes">No 2026 call-for-entries deadline visible on the news page yet; only past award references found.</div>
       <div class="card-footer">
-        <span class="checked">Last checked: 2026-08-05</span>
+        <span class="checked">Checked 2026-08-05</span>
         
       </div>
     </a>
+    </div>
+  </section>
 
-    <a class="card urgency-closed" href="https://canneslions.rs" target="_blank" rel="noopener noreferrer">
-      <div class="card-top">
-        <h2>Young Lions Srbija</h2>
-        <span class="pill pill-closed">Closed</span>
-      </div>
-      <div class="deadline-date">31 March 2026</div>
-      <div class="days-left">Closed 126 days ago</div>
+  <section class="section" data-section="closed">
+    <div class="section-head">
+      <h2>Closed</h2>
+      <span class="section-hint">past deadline</span>
+    </div>
+    <div class="grid">
       
+    <a class="card urgency-closed" href="https://canneslions.rs" target="_blank" rel="noopener noreferrer"
+       data-name="young lions srbija " data-urgency="closed">
+      <div class="card-top">
+        <h3>Young Lions Srbija</h3>
+        
+      </div>
+      <div class="deadline-row">
+        <span class="deadline-date">31 March 2026</span>
+        <span class="days-left days-closed">Closed 127 days ago</span>
+      </div>
       <div class="notes">This deadline has already passed. Next edition's dates not yet published as of this check.</div>
       <div class="card-footer">
-        <span class="checked">Last checked: 2026-08-05</span>
+        <span class="checked">Checked 2026-08-05</span>
         
       </div>
     </a>
 
-    <a class="card urgency-closed" href="https://mixx.rs" target="_blank" rel="noopener noreferrer">
+    <a class="card urgency-closed" href="https://mixx.rs" target="_blank" rel="noopener noreferrer"
+       data-name="mixx awards " data-urgency="closed">
       <div class="card-top">
-        <h2>MIXX Awards</h2>
-        <span class="pill pill-closed">Closed</span>
+        <h3>MIXX Awards</h3>
+        
       </div>
-      <div class="deadline-date">5 May 2026</div>
-      <div class="days-left">Closed 91 days ago</div>
-      
+      <div class="deadline-row">
+        <span class="deadline-date">5 May 2026</span>
+        <span class="days-left days-closed">Closed 92 days ago</span>
+      </div>
       <div class="notes">Deadline was extended once to 5 May 2026, 23:59, and has now passed. Winners announced 5 June 2026 at Digital Day.</div>
       <div class="card-footer">
-        <span class="checked">Last checked: 2026-08-05</span>
+        <span class="checked">Checked 2026-08-05</span>
         
       </div>
     </a>
+    </div>
+  </section>
+
+<div class="empty-state" id="empty-state">No festivals match your filter.</div>
+
 </div>
 <footer>Generated automatically. Deadlines are extracted from each organizer's public site and may change without notice — click through to confirm before submitting.</footer>
+<script>
+(function () {
+  var search = document.getElementById('search');
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.stat-chip'));
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.section'));
+  var emptyState = document.getElementById('empty-state');
+  var activeFilter = null;
+
+  function apply() {
+    var q = search.value.trim().toLowerCase();
+    var anyVisible = false;
+    cards.forEach(function (c) {
+      var matchesText = !q || c.dataset.name.indexOf(q) !== -1;
+      var matchesFilter = !activeFilter || c.dataset.urgency === activeFilter;
+      var show = matchesText && matchesFilter;
+      c.style.display = show ? '' : 'none';
+      if (show) anyVisible = true;
+    });
+    sections.forEach(function (s) {
+      var visibleCards = s.querySelectorAll('.card').length && Array.prototype.slice.call(s.querySelectorAll('.card')).some(function (c) { return c.style.display !== 'none'; });
+      s.style.display = visibleCards ? '' : 'none';
+    });
+    emptyState.style.display = anyVisible ? 'none' : 'block';
+  }
+
+  search.addEventListener('input', apply);
+  chips.forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      var key = chip.dataset.filter;
+      activeFilter = activeFilter === key ? null : key;
+      chips.forEach(function (c) { c.classList.toggle('active', c.dataset.filter === activeFilter); });
+      apply();
+    });
+  });
+})();
+</script>
 </body>
 </html>
