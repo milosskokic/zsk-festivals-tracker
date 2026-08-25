@@ -3,15 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Speaking Timer</title>
+<title>Stage Countdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500;700&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0b0c0e;
-    --fg: #f2f2f0;
-    --dim: #6b6f76;
-    --accent: #4ade80;
-    --warn: #fbbf24;
-    --danger: #f87171;
+    --bg: #0a0c0a;
+    --panel: #12150f;
+    --fg: #eef1ec;
+    --dim: #5c6259;
+    --line: #24281f;
+    --accent: #35d488;
+    --warn: #f2b134;
+    --danger: #ef4a4a;
   }
   * { box-sizing: border-box; }
   html, body {
@@ -19,108 +24,201 @@
     height: 100%;
     background: var(--bg);
     color: var(--fg);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     overflow: hidden;
     user-select: none;
     -webkit-user-select: none;
   }
+  body {
+    font-family: 'IBM Plex Sans', -apple-system, Helvetica, Arial, sans-serif;
+  }
+
   #app {
+    position: relative;
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2vh;
-    cursor: default;
+    gap: 4vh;
   }
-  #clock {
+
+  /* corner frame marks — viewfinder / broadcast-monitor reference */
+  .corner {
+    position: fixed;
+    width: 2.6vw;
+    height: 2.6vw;
+    max-width: 34px;
+    max-height: 34px;
+    border: 2px solid var(--line);
+    opacity: 0.9;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .corner.tl { top: 3vh; left: 3vh; border-right: none; border-bottom: none; }
+  .corner.tr { top: 3vh; right: 3vh; border-left: none; border-bottom: none; }
+  .corner.bl { bottom: 3vh; left: 3vh; border-right: none; border-top: none; }
+  .corner.br { bottom: 3vh; right: 3vh; border-left: none; border-top: none; }
+
+  #clockWrap {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 0.03em;
+  }
+  #clock, #clockInput {
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
     font-size: 22vw;
-    font-weight: 200;
+    font-weight: 300;
     line-height: 1;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     transition: color 0.4s ease;
   }
   #clock.warn { color: var(--warn); }
   #clock.danger { color: var(--danger); }
-  #clock.editable { cursor: text; border-bottom: 2px dashed var(--dim); }
+  #clock.editable { cursor: text; }
+  #clock.editable:hover { color: var(--accent); }
+
+  #clockInput {
+    display: none;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--accent);
+    width: 4.4ch;
+    text-align: center;
+    -moz-appearance: textfield;
+  }
+  #clockInput::-webkit-outer-spin-button,
+  #clockInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  #app.editing #clock { display: none; }
+  #app.editing #clockInput { display: inline-block; }
+
+  #unit {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+    align-self: center;
+    transform: translateY(-0.3em);
+  }
 
   #controls {
     display: flex;
     align-items: center;
-    gap: 3vw;
-    opacity: 0.55;
-    transition: opacity 0.25s ease;
+    gap: 1.6rem;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
   }
   #app.hide-ui #controls,
-  #app.hide-ui #hint {
+  #app.hide-ui #hint,
+  #app.hide-ui .corner {
     opacity: 0;
     pointer-events: none;
   }
   #controls:hover { opacity: 1; }
 
-  button {
-    background: none;
-    border: 1px solid var(--dim);
-    color: var(--fg);
-    font-size: 1rem;
-    padding: 0.6em 1.4em;
-    border-radius: 999px;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  button:hover { border-color: var(--fg); }
-  button:active { transform: scale(0.96); }
-  button.primary { border-color: var(--accent); color: var(--accent); }
-
   #adjust {
     display: flex;
-    gap: 0.5vw;
-  }
-  #adjust button {
-    padding: 0.5em 0.9em;
-    font-size: 0.85rem;
+    gap: 0.4rem;
+    border-right: 1px solid var(--line);
+    padding-right: 1.6rem;
+    margin-right: -0.6rem;
   }
 
+  button {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--fg);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.65em 1.3em;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+  }
+  button:hover { border-color: var(--dim); }
+  button:active { transform: translateY(1px); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.step { padding: 0.65em 0.9em; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  button.primary { border-color: var(--accent); color: var(--accent); }
+  button.primary:hover { background: rgba(53, 212, 136, 0.08); }
+
   #hint {
-    position: absolute;
+    position: fixed;
     bottom: 3vh;
-    font-size: 0.8rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
     color: var(--dim);
-    opacity: 0.5;
-    transition: opacity 0.25s ease;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+  }
+
+  #bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: var(--accent);
+    transition: background-color 0.4s ease;
+    transform-origin: left center;
+  }
+  #bar.warn { background: var(--warn); }
+  #bar.danger { background: var(--danger); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
   }
 </style>
 </head>
 <body>
 <div id="app">
-  <div id="clock" title="Click to set minutes">45:00</div>
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
 
-  <div id="adjust">
-    <button data-delta="-5">−5</button>
-    <button data-delta="-1">−1</button>
-    <button data-delta="1">+1</button>
-    <button data-delta="5">+5</button>
+  <div id="clockWrap">
+    <div id="clock" title="Click to set minutes">45:00</div>
+    <input id="clockInput" type="number" min="1" max="240" inputmode="numeric">
+    <span id="unit">min</span>
   </div>
 
   <div id="controls">
+    <div id="adjust">
+      <button class="step" data-delta="-5">−5</button>
+      <button class="step" data-delta="-1">−1</button>
+      <button class="step" data-delta="1">+1</button>
+      <button class="step" data-delta="5">+5</button>
+    </div>
     <button id="resetBtn">Reset</button>
     <button id="toggleBtn" class="primary">Start</button>
     <button id="fsBtn">Fullscreen</button>
   </div>
 
-  <div id="hint">space: start/pause · r: reset · f: fullscreen · click time to edit</div>
+  <div id="hint">space start/pause &nbsp; r reset &nbsp; f fullscreen &nbsp; click time to edit</div>
+  <div id="bar"></div>
 </div>
 
 <script>
 (function () {
   const DEFAULT_SECONDS = 45 * 60;
   const clockEl = document.getElementById('clock');
+  const inputEl = document.getElementById('clockInput');
+  const unitEl = document.getElementById('unit');
   const toggleBtn = document.getElementById('toggleBtn');
   const resetBtn = document.getElementById('resetBtn');
   const fsBtn = document.getElementById('fsBtn');
   const appEl = document.getElementById('app');
   const adjustEl = document.getElementById('adjust');
+  const barEl = document.getElementById('bar');
 
   let totalSeconds = DEFAULT_SECONDS;
   let remaining = totalSeconds;
@@ -138,9 +236,15 @@
 
   function render() {
     clockEl.textContent = format(remaining);
-    clockEl.classList.toggle('warn', remaining <= 300 && remaining > 60);
-    clockEl.classList.toggle('danger', remaining <= 60);
+    const warn = remaining <= 300 && remaining > 60;
+    const danger = remaining <= 60;
+    clockEl.classList.toggle('warn', warn);
+    clockEl.classList.toggle('danger', danger);
     clockEl.classList.toggle('editable', !running);
+    barEl.classList.toggle('warn', warn);
+    barEl.classList.toggle('danger', danger);
+    barEl.style.width = totalSeconds > 0 ? (100 * remaining / totalSeconds) + '%' : '0%';
+    unitEl.textContent = running || remaining !== totalSeconds ? 'left' : 'min';
   }
 
   function tick() {
@@ -186,16 +290,22 @@
     render();
   }
 
-  function editTime() {
+  function beginEdit() {
     if (running) return;
-    const input = prompt('Set minutes:', String(Math.round(totalSeconds / 60)));
-    if (input === null) return;
-    const mins = parseFloat(input);
+    inputEl.value = Math.round(totalSeconds / 60);
+    appEl.classList.add('editing');
+    inputEl.focus();
+    inputEl.select();
+  }
+
+  function commitEdit() {
+    const mins = parseFloat(inputEl.value);
     if (!isNaN(mins) && mins > 0) {
-      totalSeconds = Math.round(mins * 60);
+      totalSeconds = Math.round(Math.min(240, mins) * 60);
       remaining = totalSeconds;
-      render();
     }
+    appEl.classList.remove('editing');
+    render();
   }
 
   function toggleFullscreen() {
@@ -209,13 +319,19 @@
   toggleBtn.addEventListener('click', toggle);
   resetBtn.addEventListener('click', reset);
   fsBtn.addEventListener('click', toggleFullscreen);
-  clockEl.addEventListener('click', editTime);
+  clockEl.addEventListener('click', beginEdit);
+  inputEl.addEventListener('blur', commitEdit);
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') inputEl.blur();
+    if (e.key === 'Escape') { appEl.classList.remove('editing'); render(); }
+  });
   adjustEl.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-delta]');
     if (btn) adjustMinutes(parseInt(btn.dataset.delta, 10));
   });
 
   document.addEventListener('keydown', (e) => {
+    if (appEl.classList.contains('editing')) return;
     if (e.code === 'Space') { e.preventDefault(); toggle(); }
     else if (e.key === 'r' || e.key === 'R') reset();
     else if (e.key === 'f' || e.key === 'F') toggleFullscreen();
