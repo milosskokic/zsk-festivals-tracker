@@ -39,7 +39,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4vh;
+    gap: 1.6rem;
   }
 
   /* corner frame marks — viewfinder / broadcast-monitor reference */
@@ -56,8 +56,22 @@
   }
   .corner.tl { top: 3vh; left: 3vh; border-right: none; border-bottom: none; }
   .corner.tr { top: 3vh; right: 3vh; border-left: none; border-bottom: none; }
-  .corner.bl { bottom: 3vh; left: 3vh; border-right: none; border-top: none; }
-  .corner.br { bottom: 3vh; right: 3vh; border-left: none; border-top: none; }
+  .corner.bl { bottom: 4vh; left: 3vh; border-right: none; border-top: none; }
+  .corner.br { bottom: 4vh; right: 3vh; border-left: none; border-top: none; }
+
+  #segmentLabel {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dim);
+    display: none;
+    gap: 0.6em;
+    align-items: baseline;
+  }
+  #segmentLabel .count { color: var(--dim); font-weight: 400; }
+  #app.agenda #segmentLabel { display: flex; }
 
   #clockWrap {
     position: relative;
@@ -121,12 +135,13 @@
   #controls:hover { opacity: 1; }
 
   #adjust {
-    display: flex;
+    display: none;
     gap: 0.4rem;
     border-right: 1px solid var(--line);
     padding-right: 1.6rem;
     margin-right: -0.6rem;
   }
+  #app:not(.agenda) #adjust { display: flex; }
 
   button {
     background: var(--panel);
@@ -143,13 +158,16 @@
   button:hover { border-color: var(--dim); }
   button:active { transform: translateY(1px); }
   button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
   button.step { padding: 0.65em 0.9em; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
   button.primary { border-color: var(--accent); color: var(--accent); }
   button.primary:hover { background: rgba(53, 212, 136, 0.08); }
+  button.ghost { background: none; color: var(--dim); border-color: transparent; }
+  button.ghost:hover { color: var(--fg); border-color: var(--line); }
 
   #hint {
     position: fixed;
-    bottom: 3vh;
+    bottom: 5.4vh;
     left: 50%;
     transform: translateX(-50%);
     font-family: 'JetBrains Mono', monospace;
@@ -160,18 +178,163 @@
     white-space: nowrap;
   }
 
-  #bar {
+  /* remaining-time bar — always visible, doubles as an agenda strip */
+  #barDock {
     position: fixed;
-    bottom: 0;
     left: 0;
-    height: 3px;
-    width: 100%;
-    background: var(--accent);
-    transition: background-color 0.4s ease;
-    transform-origin: left center;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
   }
-  #bar.warn { background: var(--warn); }
-  #bar.danger { background: var(--danger); }
+  #capRow {
+    display: none;
+    gap: 3px;
+    padding: 0 3px 0.3rem;
+  }
+  #app.agenda #capRow { display: flex; }
+  #capRow .cap {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s ease;
+  }
+  #capRow .cap.current { color: var(--fg); }
+  #capRow .cap.done { color: var(--dim); }
+  #trackRow {
+    display: flex;
+    gap: 3px;
+    height: 8px;
+    padding: 0 3px 3px;
+  }
+  .cell {
+    position: relative;
+    background: var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .cell .fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0%;
+    background: var(--accent);
+    transition: width 0.3s linear, background-color 0.4s ease;
+  }
+  .cell .fill.warn { background: var(--warn); }
+  .cell .fill.danger { background: var(--danger); }
+  .cell .fill.done { background: var(--dim); }
+
+  /* agenda editor */
+  #agendaPanel {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 5, 3, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  #agendaPanel.open { display: flex; }
+  .panelCard {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.75rem;
+    width: min(92vw, 440px);
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .panelHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.1rem;
+  }
+  .panelHead h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg);
+    margin: 0;
+  }
+  #closeAgenda {
+    background: none;
+    border: none;
+    color: var(--dim);
+    font-size: 1.3rem;
+    padding: 0 0.3em;
+    line-height: 1;
+  }
+  .segRow {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.55rem;
+  }
+  .segRow input[type="text"] {
+    flex: 1;
+    min-width: 0;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--fg);
+    font: inherit;
+    font-family: 'IBM Plex Sans', sans-serif;
+    padding: 0.55em 0.7em;
+    border-radius: 5px;
+  }
+  .segRow input[type="number"] {
+    width: 4.4rem;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--fg);
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    padding: 0.55em 0.3em;
+    border-radius: 5px;
+  }
+  .segRow input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .segRow .rm {
+    background: none;
+    border: none;
+    color: var(--dim);
+    font-size: 1.1rem;
+    padding: 0.2em 0.4em;
+  }
+  .segRow .rm:hover { color: var(--danger); }
+  #addSeg {
+    width: 100%;
+    background: none;
+    border: 1px dashed var(--line);
+    color: var(--dim);
+    margin-top: 0.3rem;
+  }
+  #addSeg:hover { color: var(--fg); border-color: var(--dim); }
+  .panelFoot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.4rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+  #segTotal {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .panelFoot .actions { display: flex; gap: 0.6rem; }
 
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
@@ -184,6 +347,8 @@
   <div class="corner tr"></div>
   <div class="corner bl"></div>
   <div class="corner br"></div>
+
+  <div id="segmentLabel"><span id="segName">Intro</span><span class="count" id="segCount">1 / 3</span></div>
 
   <div id="clockWrap">
     <div id="clock" title="Click to set minutes">45:00</div>
@@ -198,34 +363,75 @@
       <button class="step" data-delta="1">+1</button>
       <button class="step" data-delta="5">+5</button>
     </div>
+    <button id="agendaBtn" class="ghost">Agenda</button>
     <button id="resetBtn">Reset</button>
     <button id="toggleBtn" class="primary">Start</button>
     <button id="fsBtn">Fullscreen</button>
   </div>
 
-  <div id="hint">space start/pause &nbsp; r reset &nbsp; f fullscreen &nbsp; click time to edit</div>
-  <div id="bar"></div>
+  <div id="hint">space start/pause &nbsp; r reset &nbsp; f fullscreen &nbsp; a agenda</div>
+
+  <div id="barDock">
+    <div id="capRow"></div>
+    <div id="trackRow"></div>
+  </div>
+
+  <div id="agendaPanel">
+    <div class="panelCard">
+      <div class="panelHead">
+        <h2>Agenda slots</h2>
+        <button id="closeAgenda" aria-label="Close">&times;</button>
+      </div>
+      <div id="segRows"></div>
+      <button id="addSeg">+ Add slot</button>
+      <div class="panelFoot">
+        <span id="segTotal">Total 0 min</span>
+        <div class="actions">
+          <button id="clearAgenda" class="ghost">Clear</button>
+          <button id="doneAgenda" class="primary">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
 (function () {
   const DEFAULT_SECONDS = 45 * 60;
+  const appEl = document.getElementById('app');
   const clockEl = document.getElementById('clock');
   const inputEl = document.getElementById('clockInput');
   const unitEl = document.getElementById('unit');
+  const segNameEl = document.getElementById('segName');
+  const segCountEl = document.getElementById('segCount');
   const toggleBtn = document.getElementById('toggleBtn');
   const resetBtn = document.getElementById('resetBtn');
   const fsBtn = document.getElementById('fsBtn');
-  const appEl = document.getElementById('app');
+  const agendaBtn = document.getElementById('agendaBtn');
   const adjustEl = document.getElementById('adjust');
-  const barEl = document.getElementById('bar');
+  const capRowEl = document.getElementById('capRow');
+  const trackRowEl = document.getElementById('trackRow');
+  const hintEl = document.getElementById('hint');
 
-  let totalSeconds = DEFAULT_SECONDS;
-  let remaining = totalSeconds;
+  const agendaPanel = document.getElementById('agendaPanel');
+  const segRowsEl = document.getElementById('segRows');
+  const segTotalEl = document.getElementById('segTotal');
+  const addSegBtn = document.getElementById('addSeg');
+  const closeAgendaBtn = document.getElementById('closeAgenda');
+  const clearAgendaBtn = document.getElementById('clearAgenda');
+  const doneAgendaBtn = document.getElementById('doneAgenda');
+
+  // queue: ordered list of slots. Plain "simple" mode is a single unnamed slot.
+  let queue = [{ name: '', seconds: DEFAULT_SECONDS }];
+  let currentIndex = 0;
+  let remaining = queue[0].seconds;
   let running = false;
   let endTime = null;
   let tickHandle = null;
   let uiTimer = null;
+  let editRows = [];
+
+  function isAgenda() { return queue.length > 1; }
 
   function format(s) {
     s = Math.max(0, Math.round(s));
@@ -234,31 +440,94 @@
     return (m < 100 ? String(m).padStart(2, '0') : String(m)) + ':' + String(sec).padStart(2, '0');
   }
 
+  function urgency(rem, total) {
+    if (rem <= 60) return 'danger';
+    if (rem <= 300 && rem < total) return 'warn';
+    return '';
+  }
+
+  function renderBar() {
+    const agenda = isAgenda();
+    trackRowEl.innerHTML = '';
+    capRowEl.innerHTML = '';
+    queue.forEach((slot, i) => {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.style.flexGrow = String(slot.seconds);
+      const fill = document.createElement('div');
+      fill.className = 'fill';
+      if (i < currentIndex) {
+        fill.style.width = '100%';
+        fill.classList.add('done');
+      } else if (i === currentIndex) {
+        const pct = 100 * (slot.seconds - remaining) / slot.seconds;
+        fill.style.width = Math.min(100, Math.max(0, pct)) + '%';
+        const u = urgency(remaining, slot.seconds);
+        if (u) fill.classList.add(u);
+      } else {
+        fill.style.width = '0%';
+      }
+      cell.appendChild(fill);
+      trackRowEl.appendChild(cell);
+
+      if (agenda) {
+        const cap = document.createElement('div');
+        cap.className = 'cap';
+        if (i === currentIndex) cap.classList.add('current');
+        else if (i < currentIndex) cap.classList.add('done');
+        cap.style.flexGrow = String(slot.seconds);
+        cap.textContent = slot.name || ('Slot ' + (i + 1));
+        capRowEl.appendChild(cap);
+      }
+    });
+  }
+
   function render() {
+    const slot = queue[currentIndex];
     clockEl.textContent = format(remaining);
-    const warn = remaining <= 300 && remaining > 60;
-    const danger = remaining <= 60;
-    clockEl.classList.toggle('warn', warn);
-    clockEl.classList.toggle('danger', danger);
-    clockEl.classList.toggle('editable', !running);
-    barEl.classList.toggle('warn', warn);
-    barEl.classList.toggle('danger', danger);
-    barEl.style.width = totalSeconds > 0 ? (100 * remaining / totalSeconds) + '%' : '0%';
-    unitEl.textContent = running || remaining !== totalSeconds ? 'left' : 'min';
+    const u = urgency(remaining, slot.seconds);
+    clockEl.classList.toggle('warn', u === 'warn');
+    clockEl.classList.toggle('danger', u === 'danger');
+    clockEl.classList.toggle('editable', !running && !isAgenda());
+    unitEl.textContent = running || remaining !== slot.seconds ? 'left' : 'min';
+
+    appEl.classList.toggle('agenda', isAgenda());
+    segNameEl.textContent = slot.name || ('Slot ' + (currentIndex + 1));
+    segCountEl.textContent = (currentIndex + 1) + ' / ' + queue.length;
+
+    adjustEl.style.display = isAgenda() ? 'none' : 'flex';
+    agendaBtn.disabled = running;
+
+    hintEl.textContent = isAgenda()
+      ? 'space start/pause   r reset   f fullscreen   a agenda'
+      : 'space start/pause   r reset   f fullscreen   a agenda   click time to edit';
+
+    renderBar();
   }
 
   function tick() {
     remaining = (endTime - Date.now()) / 1000;
     if (remaining <= 0) {
-      remaining = 0;
-      stop();
-      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+      if (currentIndex < queue.length - 1) {
+        currentIndex++;
+        remaining = queue[currentIndex].seconds;
+        endTime = Date.now() + remaining * 1000;
+        if (navigator.vibrate) navigator.vibrate(120);
+      } else {
+        remaining = 0;
+        stop();
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+      }
     }
     render();
   }
 
   function start() {
-    if (running || remaining <= 0) return;
+    if (running) return;
+    if (remaining <= 0) {
+      if (currentIndex < queue.length - 1) { currentIndex++; remaining = queue[currentIndex].seconds; }
+      else return;
+    }
     running = true;
     endTime = Date.now() + remaining * 1000;
     tickHandle = setInterval(tick, 200);
@@ -279,20 +548,21 @@
 
   function reset() {
     stop();
-    remaining = totalSeconds;
+    currentIndex = 0;
+    remaining = queue[0].seconds;
     render();
   }
 
   function adjustMinutes(delta) {
-    if (running) return;
-    totalSeconds = Math.max(60, totalSeconds + delta * 60);
-    remaining = totalSeconds;
+    if (running || isAgenda()) return;
+    queue[0].seconds = Math.max(60, queue[0].seconds + delta * 60);
+    remaining = queue[0].seconds;
     render();
   }
 
   function beginEdit() {
-    if (running) return;
-    inputEl.value = Math.round(totalSeconds / 60);
+    if (running || isAgenda()) return;
+    inputEl.value = Math.round(queue[0].seconds / 60);
     appEl.classList.add('editing');
     inputEl.focus();
     inputEl.select();
@@ -301,8 +571,8 @@
   function commitEdit() {
     const mins = parseFloat(inputEl.value);
     if (!isNaN(mins) && mins > 0) {
-      totalSeconds = Math.round(Math.min(240, mins) * 60);
-      remaining = totalSeconds;
+      queue[0].seconds = Math.round(Math.min(240, mins) * 60);
+      remaining = queue[0].seconds;
     }
     appEl.classList.remove('editing');
     render();
@@ -314,6 +584,89 @@
     } else {
       document.exitFullscreen().catch(() => {});
     }
+  }
+
+  // --- agenda editor ---
+
+  function renderEditor() {
+    segRowsEl.innerHTML = '';
+    editRows.forEach((row, i) => {
+      const r = document.createElement('div');
+      r.className = 'segRow';
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.placeholder = 'Slot name';
+      nameInput.value = row.name;
+      nameInput.addEventListener('input', () => { row.name = nameInput.value; });
+
+      const minInput = document.createElement('input');
+      minInput.type = 'number';
+      minInput.min = '1';
+      minInput.max = '180';
+      minInput.value = row.minutes;
+      minInput.addEventListener('input', () => {
+        row.minutes = Math.max(1, parseFloat(minInput.value) || 1);
+        updateTotal();
+      });
+
+      const rm = document.createElement('button');
+      rm.className = 'rm';
+      rm.textContent = '×';
+      rm.setAttribute('aria-label', 'Remove slot');
+      rm.addEventListener('click', () => { editRows.splice(i, 1); renderEditor(); });
+
+      r.appendChild(nameInput);
+      r.appendChild(minInput);
+      r.appendChild(rm);
+      segRowsEl.appendChild(r);
+    });
+    updateTotal();
+  }
+
+  function updateTotal() {
+    const total = editRows.reduce((sum, r) => sum + (r.minutes || 0), 0);
+    segTotalEl.textContent = 'Total ' + total + ' min';
+  }
+
+  function openAgenda() {
+    if (running) return;
+    editRows = isAgenda()
+      ? queue.map((s, i) => ({ name: s.name || ('Slot ' + (i + 1)), minutes: Math.round(s.seconds / 60) }))
+      : [];
+    renderEditor();
+    agendaPanel.classList.add('open');
+  }
+
+  function closeAgenda() {
+    agendaPanel.classList.remove('open');
+  }
+
+  function applyAgenda() {
+    const clean = editRows.filter((r) => r.name.trim() || r.minutes);
+    if (clean.length === 0) {
+      queue = [{ name: '', seconds: DEFAULT_SECONDS }];
+    } else if (clean.length === 1) {
+      queue = [{ name: '', seconds: Math.max(60, Math.round(clean[0].minutes * 60)) }];
+    } else {
+      queue = clean.map((r, i) => ({
+        name: r.name.trim() || ('Slot ' + (i + 1)),
+        seconds: Math.max(60, Math.round(r.minutes * 60)),
+      }));
+    }
+    stop();
+    currentIndex = 0;
+    remaining = queue[0].seconds;
+    closeAgenda();
+    render();
+  }
+
+  function clearAgenda() {
+    queue = [{ name: '', seconds: DEFAULT_SECONDS }];
+    stop();
+    currentIndex = 0;
+    remaining = queue[0].seconds;
+    closeAgenda();
+    render();
   }
 
   toggleBtn.addEventListener('click', toggle);
@@ -330,11 +683,26 @@
     if (btn) adjustMinutes(parseInt(btn.dataset.delta, 10));
   });
 
+  agendaBtn.addEventListener('click', openAgenda);
+  addSegBtn.addEventListener('click', () => {
+    editRows.push({ name: 'Slot ' + (editRows.length + 1), minutes: 5 });
+    renderEditor();
+  });
+  closeAgendaBtn.addEventListener('click', closeAgenda);
+  clearAgendaBtn.addEventListener('click', clearAgenda);
+  doneAgendaBtn.addEventListener('click', applyAgenda);
+  agendaPanel.addEventListener('click', (e) => { if (e.target === agendaPanel) closeAgenda(); });
+
   document.addEventListener('keydown', (e) => {
+    if (agendaPanel.classList.contains('open')) {
+      if (e.key === 'Escape') closeAgenda();
+      return;
+    }
     if (appEl.classList.contains('editing')) return;
     if (e.code === 'Space') { e.preventDefault(); toggle(); }
     else if (e.key === 'r' || e.key === 'R') reset();
     else if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+    else if (e.key === 'a' || e.key === 'A') openAgenda();
   });
 
   function wakeUi() {
