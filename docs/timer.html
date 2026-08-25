@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Speaking Timer</title>
+<style>
+  :root {
+    --bg: #0b0c0e;
+    --fg: #f2f2f0;
+    --dim: #6b6f76;
+    --accent: #4ade80;
+    --warn: #fbbf24;
+    --danger: #f87171;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  #app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2vh;
+    cursor: default;
+  }
+  #clock {
+    font-size: 22vw;
+    font-weight: 200;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    transition: color 0.4s ease;
+  }
+  #clock.warn { color: var(--warn); }
+  #clock.danger { color: var(--danger); }
+  #clock.editable { cursor: text; border-bottom: 2px dashed var(--dim); }
+
+  #controls {
+    display: flex;
+    align-items: center;
+    gap: 3vw;
+    opacity: 0.55;
+    transition: opacity 0.25s ease;
+  }
+  #app.hide-ui #controls,
+  #app.hide-ui #hint {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #controls:hover { opacity: 1; }
+
+  button {
+    background: none;
+    border: 1px solid var(--dim);
+    color: var(--fg);
+    font-size: 1rem;
+    padding: 0.6em 1.4em;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button:hover { border-color: var(--fg); }
+  button:active { transform: scale(0.96); }
+  button.primary { border-color: var(--accent); color: var(--accent); }
+
+  #adjust {
+    display: flex;
+    gap: 0.5vw;
+  }
+  #adjust button {
+    padding: 0.5em 0.9em;
+    font-size: 0.85rem;
+  }
+
+  #hint {
+    position: absolute;
+    bottom: 3vh;
+    font-size: 0.8rem;
+    color: var(--dim);
+    opacity: 0.5;
+    transition: opacity 0.25s ease;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="clock" title="Click to set minutes">45:00</div>
+
+  <div id="adjust">
+    <button data-delta="-5">−5</button>
+    <button data-delta="-1">−1</button>
+    <button data-delta="1">+1</button>
+    <button data-delta="5">+5</button>
+  </div>
+
+  <div id="controls">
+    <button id="resetBtn">Reset</button>
+    <button id="toggleBtn" class="primary">Start</button>
+    <button id="fsBtn">Fullscreen</button>
+  </div>
+
+  <div id="hint">space: start/pause · r: reset · f: fullscreen · click time to edit</div>
+</div>
+
+<script>
+(function () {
+  const DEFAULT_SECONDS = 45 * 60;
+  const clockEl = document.getElementById('clock');
+  const toggleBtn = document.getElementById('toggleBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const fsBtn = document.getElementById('fsBtn');
+  const appEl = document.getElementById('app');
+  const adjustEl = document.getElementById('adjust');
+
+  let totalSeconds = DEFAULT_SECONDS;
+  let remaining = totalSeconds;
+  let running = false;
+  let endTime = null;
+  let tickHandle = null;
+  let uiTimer = null;
+
+  function format(s) {
+    s = Math.max(0, Math.round(s));
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return (m < 100 ? String(m).padStart(2, '0') : String(m)) + ':' + String(sec).padStart(2, '0');
+  }
+
+  function render() {
+    clockEl.textContent = format(remaining);
+    clockEl.classList.toggle('warn', remaining <= 300 && remaining > 60);
+    clockEl.classList.toggle('danger', remaining <= 60);
+    clockEl.classList.toggle('editable', !running);
+  }
+
+  function tick() {
+    remaining = (endTime - Date.now()) / 1000;
+    if (remaining <= 0) {
+      remaining = 0;
+      stop();
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    }
+    render();
+  }
+
+  function start() {
+    if (running || remaining <= 0) return;
+    running = true;
+    endTime = Date.now() + remaining * 1000;
+    tickHandle = setInterval(tick, 200);
+    toggleBtn.textContent = 'Pause';
+    render();
+  }
+
+  function stop() {
+    running = false;
+    clearInterval(tickHandle);
+    toggleBtn.textContent = 'Start';
+    render();
+  }
+
+  function toggle() {
+    running ? stop() : start();
+  }
+
+  function reset() {
+    stop();
+    remaining = totalSeconds;
+    render();
+  }
+
+  function adjustMinutes(delta) {
+    if (running) return;
+    totalSeconds = Math.max(60, totalSeconds + delta * 60);
+    remaining = totalSeconds;
+    render();
+  }
+
+  function editTime() {
+    if (running) return;
+    const input = prompt('Set minutes:', String(Math.round(totalSeconds / 60)));
+    if (input === null) return;
+    const mins = parseFloat(input);
+    if (!isNaN(mins) && mins > 0) {
+      totalSeconds = Math.round(mins * 60);
+      remaining = totalSeconds;
+      render();
+    }
+  }
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+
+  toggleBtn.addEventListener('click', toggle);
+  resetBtn.addEventListener('click', reset);
+  fsBtn.addEventListener('click', toggleFullscreen);
+  clockEl.addEventListener('click', editTime);
+  adjustEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-delta]');
+    if (btn) adjustMinutes(parseInt(btn.dataset.delta, 10));
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') { e.preventDefault(); toggle(); }
+    else if (e.key === 'r' || e.key === 'R') reset();
+    else if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+  });
+
+  function wakeUi() {
+    appEl.classList.remove('hide-ui');
+    clearTimeout(uiTimer);
+    uiTimer = setTimeout(() => {
+      if (running) appEl.classList.add('hide-ui');
+    }, 3000);
+  }
+  ['mousemove', 'touchstart', 'keydown'].forEach((ev) =>
+    document.addEventListener(ev, wakeUi)
+  );
+  wakeUi();
+
+  render();
+})();
+</script>
+</body>
+</html>
