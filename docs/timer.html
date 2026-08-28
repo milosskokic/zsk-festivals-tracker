@@ -209,10 +209,13 @@
     left: 0;
     right: 0;
     bottom: 0;
-    display: flex;
-    flex-direction: column;
     padding: 0.6rem 0.6rem calc(0.7rem + env(safe-area-inset-bottom, 0px));
     background: linear-gradient(to top, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0));
+  }
+  #barInner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
   }
   #capRow {
     display: none;
@@ -241,6 +244,39 @@
     height: 2.4vh;
     min-height: 18px;
     max-height: 30px;
+  }
+
+  /* playhead — marks the current position across the whole agenda, on top of the segment fills */
+  #playhead {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    display: none;
+    pointer-events: none;
+    z-index: 5;
+    transition: left 0.3s linear;
+  }
+  #app.agenda #playhead { display: block; }
+  #playhead .needle {
+    position: absolute;
+    left: -1px;
+    top: 0.9rem;
+    bottom: 0;
+    width: 2px;
+    background: var(--fg);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
+  }
+  #playhead .knob {
+    position: absolute;
+    left: -6px;
+    top: -0.1rem;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid var(--fg);
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
   }
   .cell {
     position: relative;
@@ -441,8 +477,11 @@
   <div id="hint">space start/pause &nbsp; r reset &nbsp; f fullscreen &nbsp; a agenda</div>
 
   <div id="barDock">
-    <div id="capRow"></div>
-    <div id="trackRow"></div>
+    <div id="barInner">
+      <div id="capRow"></div>
+      <div id="trackRow"></div>
+      <div id="playhead"><div class="knob"></div><div class="needle"></div></div>
+    </div>
   </div>
 
   <div id="agendaPanel">
@@ -486,6 +525,7 @@
   const adjustEl = document.getElementById('adjust');
   const capRowEl = document.getElementById('capRow');
   const trackRowEl = document.getElementById('trackRow');
+  const playheadEl = document.getElementById('playhead');
   const hintEl = document.getElementById('hint');
 
   const agendaPanel = document.getElementById('agendaPanel');
@@ -600,6 +640,14 @@
     });
   }
 
+  function updatePlayhead() {
+    if (!isAgenda()) return;
+    const total = totalQueueSeconds();
+    const elapsed = total - totalRemainingSeconds();
+    const pct = total > 0 ? Math.min(100, Math.max(0, 100 * elapsed / total)) : 0;
+    playheadEl.style.left = pct + '%';
+  }
+
   function flashSegmentChange() {
     [clockWrapEl, slotClockEl, segmentLabelEl, cellEls[currentIndex]].forEach((el) => {
       if (!el) return;
@@ -635,6 +683,7 @@
       : 'space start/pause   r reset   f fullscreen   a agenda   click time to edit';
 
     updateBar();
+    updatePlayhead();
   }
 
   function tick() {
