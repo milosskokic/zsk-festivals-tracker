@@ -738,11 +738,11 @@
 
       const minInput = document.createElement('input');
       minInput.type = 'number';
-      minInput.min = '1';
+      minInput.min = '0';
       minInput.max = '180';
       minInput.value = row.minutes;
       minInput.addEventListener('input', () => {
-        row.minutes = Math.max(1, parseFloat(minInput.value) || 1);
+        row.minutes = Math.max(0, parseFloat(minInput.value) || 0);
         updateTotal();
       });
 
@@ -780,7 +780,8 @@
   }
 
   function applyAgenda() {
-    const clean = editRows.filter((r) => r.name.trim() || r.minutes);
+    closeAgenda();
+    const clean = editRows.filter((r) => r.minutes > 0);
     if (clean.length === 0) {
       queue = [{ name: '', seconds: DEFAULT_SECONDS }];
     } else if (clean.length === 1) {
@@ -795,17 +796,16 @@
     currentIndex = 0;
     remaining = queue[0].seconds;
     buildBar();
-    closeAgenda();
     render();
   }
 
   function clearAgenda() {
+    closeAgenda();
     queue = [{ name: '', seconds: DEFAULT_SECONDS }];
     stop();
     currentIndex = 0;
     remaining = queue[0].seconds;
     buildBar();
-    closeAgenda();
     render();
   }
 
@@ -825,7 +825,7 @@
 
   agendaBtn.addEventListener('click', openAgenda);
   addSegBtn.addEventListener('click', () => {
-    editRows.push({ name: 'Slot ' + (editRows.length + 1), minutes: 5 });
+    editRows.push({ name: 'Slot ' + (editRows.length + 1), minutes: 0 });
     renderEditor();
   });
   closeAgendaBtn.addEventListener('click', closeAgenda);
