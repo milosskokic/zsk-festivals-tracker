@@ -34,343 +34,43 @@
   #app {
     position: relative;
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1.6rem;
   }
 
-  /* corner frame marks — viewfinder / broadcast-monitor reference */
-  .corner {
-    position: fixed;
-    width: 2.6vw;
-    height: 2.6vw;
-    max-width: 34px;
-    max-height: 34px;
-    border: 2px solid var(--line);
-    opacity: 0.9;
-    transition: opacity 0.4s ease;
-    pointer-events: none;
-  }
-  .corner.tl { top: 3vh; left: 3vh; border-right: none; border-bottom: none; }
-  .corner.tr { top: 3vh; right: 3vh; border-left: none; border-bottom: none; }
-  .corner.bl { bottom: 7.5vh; left: 3vh; border-right: none; border-top: none; }
-  .corner.br { bottom: 7.5vh; right: 3vh; border-left: none; border-top: none; }
-
-  #segmentLabel {
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--dim);
-    display: none;
-    gap: 0.6em;
-    align-items: baseline;
-  }
-  #segmentLabel .count { color: var(--dim); font-weight: 400; }
-  #app.agenda #segmentLabel { display: flex; }
-  #segmentLabel.seg-flash { animation: labelPop 0.5s ease-out; }
-
-  #clockWrap {
-    position: relative;
-    display: flex;
-    align-items: baseline;
-    gap: 0.03em;
-  }
-  #clockWrap.seg-flash { animation: clockPop 0.6s cubic-bezier(.34,1.56,.64,1); }
-  #clock, #clockInput {
-    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
-    font-size: 22vw;
-    font-weight: 300;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.03em;
-    transition: color 0.4s ease;
-  }
-  #clock.danger { color: var(--danger); }
-  #clock.editable { cursor: text; }
-  #clock.editable:hover { color: var(--accent); }
-
-  #clockInput {
-    display: none;
-    background: none;
-    border: none;
-    outline: none;
-    color: var(--accent);
-    width: 4.4ch;
-    text-align: center;
-    -moz-appearance: textfield;
-  }
-  #clockInput::-webkit-outer-spin-button,
-  #clockInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  #app.editing #clock { display: none; }
-  #app.editing #clockInput { display: inline-block; }
-
-  #unit {
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--dim);
-    align-self: center;
-    transform: translateY(-0.3em);
-  }
-
-  /* small readout for the currently-running agenda slot, beneath the big total */
-  #slotClock {
-    display: none;
-    align-items: baseline;
-    gap: 0.5em;
-    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
-    font-size: 4.2vw;
-    font-weight: 500;
-    font-variant-numeric: tabular-nums;
-    color: var(--fg);
-    opacity: 0.82;
-    transition: color 0.4s ease;
-  }
-  #app.agenda #slotClock { display: flex; }
-  #slotClock.seg-flash { animation: clockPop 0.6s cubic-bezier(.34,1.56,.64,1); }
-  #slotClock.danger { color: var(--danger); opacity: 1; }
-  #slotClock .slotUnit {
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--dim);
-  }
-
-  #controls {
-    display: flex;
-    align-items: center;
-    gap: 1.6rem;
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
-  }
-  #app.hide-ui #controls,
-  #app.hide-ui #hint,
-  #app.hide-ui .corner {
-    opacity: 0;
-    pointer-events: none;
-  }
-  #controls:hover { opacity: 1; }
-
-  #adjust {
-    display: none;
-    gap: 0.4rem;
-    border-right: 1px solid var(--line);
-    padding-right: 1.6rem;
-    margin-right: -0.6rem;
-  }
-  #app:not(.agenda) #adjust { display: flex; }
-
-  button {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    color: var(--fg);
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 600;
-    padding: 0.65em 1.3em;
-    border-radius: 4px;
-    cursor: pointer;
-    letter-spacing: 0.01em;
-  }
-  button:hover { border-color: var(--dim); }
-  button:active { transform: translateY(1px); }
-  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  button:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
-  button.step { padding: 0.65em 0.9em; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
-  button.primary { border-color: var(--accent); color: var(--accent); }
-  button.primary:hover { background: rgba(53, 212, 136, 0.08); }
-  button.ghost { background: none; color: var(--dim); border-color: transparent; }
-  button.ghost:hover { color: var(--fg); border-color: var(--line); }
-
-  #hint {
-    position: fixed;
-    bottom: 8.4vh;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--dim);
-    opacity: 0.6;
-    transition: opacity 0.3s ease;
-    white-space: nowrap;
-  }
-
-  /* remaining-time bar — the main stage instrument, always on, one colour per slot */
-  #barDock {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 0.6rem 0.6rem calc(0.7rem + env(safe-area-inset-bottom, 0px));
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0));
-  }
-  #barInner {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-  }
-  #capRow {
-    display: none;
-    gap: 6px;
-    padding: 0 2px 0.4rem;
-  }
-  #app.agenda #capRow { display: flex; }
-  #capRow .cap {
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--dim);
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: color 0.3s ease;
-  }
-  #capRow .cap.current { color: var(--fg); }
-  #capRow .cap.done { color: var(--dim); }
-  #trackRow {
-    display: flex;
-    gap: 6px;
-    height: 2.4vh;
-    min-height: 18px;
-    max-height: 30px;
-  }
-
-  /* playhead — marks the current position across the whole agenda, on top of the segment fills */
-  #playhead {
+  #setupScreen, #timerScreen {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 0;
-    display: none;
-    pointer-events: none;
-    z-index: 5;
-    transition: left 0.3s linear;
-  }
-  #app.agenda #playhead { display: block; }
-  #playhead .needle {
-    position: absolute;
-    left: -1px;
-    top: 0.9rem;
-    bottom: 0;
-    width: 2px;
-    background: var(--fg);
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
-  }
-  #playhead .knob {
-    position: absolute;
-    left: -6px;
-    top: -0.1rem;
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 8px solid var(--fg);
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
-  }
-  .cell {
-    position: relative;
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 5px;
-    overflow: hidden;
-    transition: border-color 0.4s ease;
-  }
-  .cell .fill {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 0%;
-    background: var(--accent);
-    transition: width 0.3s linear, background-color 0.4s ease;
-  }
-  .cell .fill.danger { background: var(--danger); }
-  .cell .fill.done { background: var(--dim); }
-  .cell.urgent {
-    animation: urgentPulse 1s ease-in-out infinite;
-  }
-  .cell.seg-flash {
-    animation: segFlashCell 0.7s cubic-bezier(.34,1.56,.64,1), segFlashGlow 0.7s ease-out;
-    z-index: 1;
-  }
-
-  @keyframes segFlashCell {
-    0% { transform: scaleY(1); }
-    30% { transform: scaleY(2.1); }
-    100% { transform: scaleY(1); }
-  }
-  @keyframes segFlashGlow {
-    0% { box-shadow: 0 0 0 rgba(0, 0, 0, 0); }
-    30% { box-shadow: 0 0 22px 2px var(--flash-color, rgba(255, 255, 255, 0.8)); }
-    100% { box-shadow: 0 0 0 rgba(0, 0, 0, 0); }
-  }
-  @keyframes urgentPulse {
-    0%, 100% { box-shadow: 0 0 8px 1px rgba(239, 74, 74, 0.55); }
-    50% { box-shadow: 0 0 2px 0 rgba(239, 74, 74, 0.15); }
-  }
-  @keyframes labelPop {
-    0% { opacity: 0; transform: translateY(8px); }
-    60% { opacity: 1; }
-    100% { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes clockPop {
-    0% { transform: scale(1); }
-    40% { transform: scale(1.06); }
-    100% { transform: scale(1); }
-  }
-
-  /* agenda editor */
-  #agendaPanel {
-    position: fixed;
     inset: 0;
-    background: rgba(4, 5, 3, 0.7);
     display: none;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 10;
   }
-  #agendaPanel.open { display: flex; }
-  .panelCard {
+  #app[data-screen="setup"] #setupScreen { display: flex; }
+  #app[data-screen="timer"] #timerScreen { display: flex; }
+
+  /* ---------- setup screen ---------- */
+
+  #setupScreen { gap: 1.6rem; padding: 4vh 1.5rem; }
+  .setupHead { text-align: center; max-width: 32rem; }
+  .setupHead h1 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin: 0 0 0.5rem;
+  }
+  .setupHead p {
+    font-size: 0.9rem;
+    color: var(--dim);
+    margin: 0;
+    line-height: 1.5;
+  }
+  .setupCard {
     background: var(--panel);
     border: 1px solid var(--line);
     border-radius: 10px;
-    padding: 1.75rem;
+    padding: 1.5rem;
     width: min(92vw, 440px);
-    max-height: 80vh;
+    max-height: 52vh;
     overflow-y: auto;
-  }
-  .panelHead {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.1rem;
-  }
-  .panelHead h2 {
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--fg);
-    margin: 0;
-  }
-  #closeAgenda {
-    background: none;
-    border: none;
-    color: var(--dim);
-    font-size: 1.3rem;
-    padding: 0 0.3em;
-    line-height: 1;
   }
   .segRow {
     display: flex;
@@ -423,11 +123,11 @@
     margin-top: 0.3rem;
   }
   #addSeg:hover { color: var(--fg); border-color: var(--dim); }
-  .panelFoot {
+  .setupFoot {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 1.4rem;
+    margin-top: 1.3rem;
     padding-top: 1rem;
     border-top: 1px solid var(--line);
   }
@@ -437,7 +137,275 @@
     color: var(--dim);
     font-variant-numeric: tabular-nums;
   }
-  .panelFoot .actions { display: flex; gap: 0.6rem; }
+
+  /* ---------- shared buttons ---------- */
+
+  button {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--fg);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.65em 1.3em;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+  }
+  button:hover { border-color: var(--dim); }
+  button:active { transform: translateY(1px); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+  button.primary { border-color: var(--accent); color: var(--accent); }
+  button.primary:hover { background: rgba(53, 212, 136, 0.08); }
+  button.ghost { background: none; color: var(--dim); border-color: transparent; }
+  button.ghost:hover { color: var(--fg); border-color: var(--line); }
+  #continueBtn { font-size: 1.05rem; padding: 0.75em 2.4em; }
+
+  /* ---------- timer screen ---------- */
+
+  .corner {
+    position: fixed;
+    width: 2.6vw;
+    height: 2.6vw;
+    max-width: 34px;
+    max-height: 34px;
+    border: 2px solid var(--line);
+    opacity: 0.9;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .corner.tl { top: 3vh; left: 3vh; border-right: none; border-bottom: none; }
+  .corner.tr { top: 3vh; right: 3vh; border-left: none; border-bottom: none; }
+  .corner.bl { bottom: 7.5vh; left: 3vh; border-right: none; border-top: none; }
+  .corner.br { bottom: 7.5vh; right: 3vh; border-left: none; border-top: none; }
+
+  #segmentLabel {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dim);
+    display: none;
+    gap: 0.6em;
+    align-items: baseline;
+    margin-bottom: 1.6rem;
+  }
+  #segmentLabel .count { color: var(--dim); font-weight: 400; }
+  #timerScreen.agenda #segmentLabel { display: flex; }
+  #segmentLabel.seg-flash { animation: labelPop 0.5s ease-out; }
+
+  #clockWrap {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 0.03em;
+  }
+  #clockWrap.seg-flash { animation: clockPop 0.6s cubic-bezier(.34,1.56,.64,1); }
+  #clock {
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    font-size: 22vw;
+    font-weight: 300;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+    transition: color 0.4s ease;
+  }
+  #clock.danger { color: var(--danger); }
+
+  #unit {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+    align-self: center;
+    transform: translateY(-0.3em);
+  }
+
+  /* small readout for the currently-running agenda slot, beneath the big total */
+  #slotClock {
+    display: none;
+    align-items: baseline;
+    gap: 0.5em;
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    font-size: 4.2vw;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg);
+    opacity: 0.82;
+    margin-top: 1.6rem;
+    transition: color 0.4s ease;
+  }
+  #timerScreen.agenda #slotClock { display: flex; }
+  #slotClock.seg-flash { animation: clockPop 0.6s cubic-bezier(.34,1.56,.64,1); }
+  #slotClock.danger { color: var(--danger); opacity: 1; }
+  #slotClock .slotUnit {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  #controls {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+    margin-top: 3rem;
+  }
+  #timerScreen.hide-ui #controls,
+  #timerScreen.hide-ui #hint,
+  #timerScreen.hide-ui .corner {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #controls:hover { opacity: 1; }
+
+  #hint {
+    position: fixed;
+    bottom: 8.4vh;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--dim);
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+  }
+
+  /* remaining-time bar — the main stage instrument, always on, one colour per slot */
+  #barDock {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0.6rem 0.6rem calc(0.7rem + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0));
+  }
+  #barInner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  #capRow {
+    display: none;
+    gap: 6px;
+    padding: 0 2px 0.4rem;
+  }
+  #timerScreen.agenda #capRow { display: flex; }
+  #capRow .cap {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s ease;
+  }
+  #capRow .cap.current { color: var(--fg); }
+  #capRow .cap.done { color: var(--dim); }
+  #trackRow {
+    display: flex;
+    gap: 6px;
+    height: 2.4vh;
+    min-height: 18px;
+    max-height: 30px;
+  }
+  .cell {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    overflow: hidden;
+    transition: border-color 0.4s ease;
+  }
+  .cell .fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0%;
+    background: var(--accent);
+    transition: width 0.3s linear, background-color 0.4s ease;
+  }
+  .cell .fill.danger { background: var(--danger); }
+  .cell .fill.done { background: var(--dim); }
+  .cell.urgent {
+    animation: urgentPulse 1s ease-in-out infinite;
+  }
+  .cell.seg-flash {
+    animation: segFlashCell 0.7s cubic-bezier(.34,1.56,.64,1), segFlashGlow 0.7s ease-out;
+    z-index: 1;
+  }
+
+  /* playhead — marks the current position across the whole agenda, on top of the segment fills */
+  #playhead {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    display: none;
+    pointer-events: none;
+    z-index: 5;
+    transition: left 0.3s linear;
+  }
+  #timerScreen.agenda #playhead { display: block; }
+  #playhead .needle {
+    position: absolute;
+    left: -1px;
+    top: 0.9rem;
+    bottom: 0;
+    width: 2px;
+    background: var(--fg);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
+  }
+  #playhead .knob {
+    position: absolute;
+    left: -6px;
+    top: -0.1rem;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid var(--fg);
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+  }
+
+  @keyframes segFlashCell {
+    0% { transform: scaleY(1); }
+    30% { transform: scaleY(2.1); }
+    100% { transform: scaleY(1); }
+  }
+  @keyframes segFlashGlow {
+    0% { box-shadow: 0 0 0 rgba(0, 0, 0, 0); }
+    30% { box-shadow: 0 0 22px 2px var(--flash-color, rgba(255, 255, 255, 0.8)); }
+    100% { box-shadow: 0 0 0 rgba(0, 0, 0, 0); }
+  }
+  @keyframes urgentPulse {
+    0%, 100% { box-shadow: 0 0 8px 1px rgba(239, 74, 74, 0.55); }
+    50% { box-shadow: 0 0 2px 0 rgba(239, 74, 74, 0.15); }
+  }
+  @keyframes labelPop {
+    0% { opacity: 0; transform: translateY(8px); }
+    60% { opacity: 1; }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes clockPop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
@@ -445,62 +413,57 @@
 </style>
 </head>
 <body>
-<div id="app">
-  <div class="corner tl"></div>
-  <div class="corner tr"></div>
-  <div class="corner bl"></div>
-  <div class="corner br"></div>
+<div id="app" data-screen="setup">
 
-  <div id="segmentLabel"><span id="segName">Intro</span><span class="count" id="segCount">1 / 3</span></div>
-
-  <div id="clockWrap">
-    <div id="clock" title="Click to set minutes">45:00</div>
-    <input id="clockInput" type="number" min="1" max="240" inputmode="numeric">
-    <span id="unit">min</span>
-  </div>
-
-  <div id="slotClock"><span id="slotTime">05:00</span><span class="slotUnit">this slot</span></div>
-
-  <div id="controls">
-    <div id="adjust">
-      <button class="step" data-delta="-5">−5</button>
-      <button class="step" data-delta="-1">−1</button>
-      <button class="step" data-delta="1">+1</button>
-      <button class="step" data-delta="5">+5</button>
+  <div id="setupScreen">
+    <div class="setupHead">
+      <h1>Set your slots</h1>
+      <p>One slot is a plain countdown. Add more to build an agenda that steps through them on its own — e.g. 5m intro, 20m lecture, 10m Q&amp;A.</p>
     </div>
-    <button id="agendaBtn" class="ghost">Agenda</button>
-    <button id="resetBtn">Reset</button>
-    <button id="toggleBtn" class="primary">Start</button>
-    <button id="fsBtn">Fullscreen</button>
-  </div>
-
-  <div id="hint">space start/pause &nbsp; r reset &nbsp; f fullscreen &nbsp; a agenda</div>
-
-  <div id="barDock">
-    <div id="barInner">
-      <div id="capRow"></div>
-      <div id="trackRow"></div>
-      <div id="playhead"><div class="knob"></div><div class="needle"></div></div>
-    </div>
-  </div>
-
-  <div id="agendaPanel">
-    <div class="panelCard">
-      <div class="panelHead">
-        <h2>Agenda slots</h2>
-        <button id="closeAgenda" aria-label="Close">&times;</button>
-      </div>
+    <div class="setupCard">
       <div id="segRows"></div>
       <button id="addSeg">+ Add slot</button>
-      <div class="panelFoot">
-        <span id="segTotal">Total 0 min</span>
-        <div class="actions">
-          <button id="clearAgenda" class="ghost">Clear</button>
-          <button id="doneAgenda" class="primary">Done</button>
-        </div>
+      <div class="setupFoot">
+        <span id="segTotal">Total 45 min</span>
+        <button id="resetSetupBtn" class="ghost">Reset</button>
+      </div>
+    </div>
+    <button id="continueBtn" class="primary">Continue</button>
+  </div>
+
+  <div id="timerScreen">
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <div id="segmentLabel"><span id="segName">Intro</span><span class="count" id="segCount">1 / 3</span></div>
+
+    <div id="clockWrap">
+      <div id="clock">45:00</div>
+      <span id="unit">min</span>
+    </div>
+
+    <div id="slotClock"><span id="slotTime">05:00</span><span class="slotUnit">this slot</span></div>
+
+    <div id="controls">
+      <button id="editBtn" class="ghost">Edit</button>
+      <button id="resetBtn">Reset</button>
+      <button id="toggleBtn" class="primary">Start</button>
+      <button id="fsBtn">Fullscreen</button>
+    </div>
+
+    <div id="hint">space start/pause &nbsp; r reset &nbsp; f fullscreen &nbsp; e edit</div>
+
+    <div id="barDock">
+      <div id="barInner">
+        <div id="capRow"></div>
+        <div id="trackRow"></div>
+        <div id="playhead"><div class="knob"></div><div class="needle"></div></div>
       </div>
     </div>
   </div>
+
 </div>
 
 <script>
@@ -509,9 +472,11 @@
   const PALETTE = ['#35d488', '#4f9dff', '#f2b134', '#ef8a3d', '#b98ce8', '#38c6c6'];
 
   const appEl = document.getElementById('app');
+  const setupScreenEl = document.getElementById('setupScreen');
+  const timerScreenEl = document.getElementById('timerScreen');
+
   const clockEl = document.getElementById('clock');
   const clockWrapEl = document.getElementById('clockWrap');
-  const inputEl = document.getElementById('clockInput');
   const unitEl = document.getElementById('unit');
   const slotClockEl = document.getElementById('slotClock');
   const slotTimeEl = document.getElementById('slotTime');
@@ -521,20 +486,17 @@
   const toggleBtn = document.getElementById('toggleBtn');
   const resetBtn = document.getElementById('resetBtn');
   const fsBtn = document.getElementById('fsBtn');
-  const agendaBtn = document.getElementById('agendaBtn');
-  const adjustEl = document.getElementById('adjust');
+  const editBtn = document.getElementById('editBtn');
   const capRowEl = document.getElementById('capRow');
   const trackRowEl = document.getElementById('trackRow');
   const playheadEl = document.getElementById('playhead');
   const hintEl = document.getElementById('hint');
 
-  const agendaPanel = document.getElementById('agendaPanel');
   const segRowsEl = document.getElementById('segRows');
   const segTotalEl = document.getElementById('segTotal');
   const addSegBtn = document.getElementById('addSeg');
-  const closeAgendaBtn = document.getElementById('closeAgenda');
-  const clearAgendaBtn = document.getElementById('clearAgenda');
-  const doneAgendaBtn = document.getElementById('doneAgenda');
+  const resetSetupBtn = document.getElementById('resetSetupBtn');
+  const continueBtn = document.getElementById('continueBtn');
 
   // queue: ordered list of slots. Plain "simple" mode is a single unnamed slot.
   let queue = [{ name: '', seconds: DEFAULT_SECONDS }];
@@ -544,7 +506,7 @@
   let endTime = null;
   let tickHandle = null;
   let uiTimer = null;
-  let editRows = [];
+  let editRows = [{ name: '', minutes: 45 }];
 
   let cellEls = [];
   let fillEls = [];
@@ -665,22 +627,16 @@
 
     clockEl.textContent = format(totalRemaining);
     clockEl.classList.toggle('danger', totalRemaining <= 60);
-    clockEl.classList.toggle('editable', !running && !isAgenda());
     unitEl.textContent = running || totalRemaining !== totalQueueSeconds() ? 'left' : 'min';
 
     slotTimeEl.textContent = format(remaining);
     slotClockEl.classList.toggle('danger', remaining <= 60);
 
-    appEl.classList.toggle('agenda', isAgenda());
+    timerScreenEl.classList.toggle('agenda', isAgenda());
     segNameEl.textContent = slot.name || ('Slot ' + (currentIndex + 1));
     segCountEl.textContent = (currentIndex + 1) + ' / ' + queue.length;
 
-    adjustEl.style.display = isAgenda() ? 'none' : 'flex';
-    agendaBtn.disabled = running;
-
-    hintEl.textContent = isAgenda()
-      ? 'space start/pause   r reset   f fullscreen   a agenda'
-      : 'space start/pause   r reset   f fullscreen   a agenda   click time to edit';
+    editBtn.disabled = running;
 
     updateBar();
     updatePlayhead();
@@ -734,31 +690,6 @@
     render();
   }
 
-  function adjustMinutes(delta) {
-    if (running || isAgenda()) return;
-    queue[0].seconds = Math.max(60, queue[0].seconds + delta * 60);
-    remaining = queue[0].seconds;
-    render();
-  }
-
-  function beginEdit() {
-    if (running || isAgenda()) return;
-    inputEl.value = Math.round(queue[0].seconds / 60);
-    appEl.classList.add('editing');
-    inputEl.focus();
-    inputEl.select();
-  }
-
-  function commitEdit() {
-    const mins = parseFloat(inputEl.value);
-    if (!isNaN(mins) && mins > 0) {
-      queue[0].seconds = Math.round(Math.min(240, mins) * 60);
-      remaining = queue[0].seconds;
-    }
-    appEl.classList.remove('editing');
-    render();
-  }
-
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(() => {});
@@ -767,7 +698,7 @@
     }
   }
 
-  // --- agenda editor ---
+  // --- setup screen ---
 
   function renderEditor() {
     segRowsEl.innerHTML = '';
@@ -815,21 +746,23 @@
     segTotalEl.textContent = 'Total ' + total + ' min';
   }
 
-  function openAgenda() {
+  function showSetup() {
     if (running) return;
-    editRows = isAgenda()
-      ? queue.map((s, i) => ({ name: s.name || ('Slot ' + (i + 1)), minutes: Math.round(s.seconds / 60) }))
-      : [];
+    editRows = queue.map((s, i) => ({ name: s.name || (isAgenda() ? 'Slot ' + (i + 1) : ''), minutes: Math.round(s.seconds / 60) }));
     renderEditor();
-    agendaPanel.classList.add('open');
+    appEl.dataset.screen = 'setup';
   }
 
-  function closeAgenda() {
-    agendaPanel.classList.remove('open');
+  function showTimer() {
+    appEl.dataset.screen = 'timer';
   }
 
-  function applyAgenda() {
-    closeAgenda();
+  function resetSetupRows() {
+    editRows = [{ name: '', minutes: 45 }];
+    renderEditor();
+  }
+
+  function continueSetup() {
     const clean = editRows.filter((r) => r.minutes > 0);
     if (clean.length === 0) {
       queue = [{ name: '', seconds: DEFAULT_SECONDS }];
@@ -841,64 +774,38 @@
         seconds: Math.max(60, Math.round(r.minutes * 60)),
       }));
     }
-    stop();
     currentIndex = 0;
     remaining = queue[0].seconds;
     buildBar();
-    render();
-  }
-
-  function clearAgenda() {
-    closeAgenda();
-    queue = [{ name: '', seconds: DEFAULT_SECONDS }];
     stop();
-    currentIndex = 0;
-    remaining = queue[0].seconds;
-    buildBar();
-    render();
+    showTimer();
   }
 
   toggleBtn.addEventListener('click', toggle);
   resetBtn.addEventListener('click', reset);
   fsBtn.addEventListener('click', toggleFullscreen);
-  clockEl.addEventListener('click', beginEdit);
-  inputEl.addEventListener('blur', commitEdit);
-  inputEl.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') inputEl.blur();
-    if (e.key === 'Escape') { appEl.classList.remove('editing'); render(); }
-  });
-  adjustEl.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-delta]');
-    if (btn) adjustMinutes(parseInt(btn.dataset.delta, 10));
-  });
+  editBtn.addEventListener('click', showSetup);
 
-  agendaBtn.addEventListener('click', openAgenda);
   addSegBtn.addEventListener('click', () => {
     editRows.push({ name: 'Slot ' + (editRows.length + 1), minutes: 0 });
     renderEditor();
   });
-  closeAgendaBtn.addEventListener('click', closeAgenda);
-  clearAgendaBtn.addEventListener('click', clearAgenda);
-  doneAgendaBtn.addEventListener('click', applyAgenda);
-  agendaPanel.addEventListener('click', (e) => { if (e.target === agendaPanel) closeAgenda(); });
+  resetSetupBtn.addEventListener('click', resetSetupRows);
+  continueBtn.addEventListener('click', continueSetup);
 
   document.addEventListener('keydown', (e) => {
-    if (agendaPanel.classList.contains('open')) {
-      if (e.key === 'Escape') closeAgenda();
-      return;
-    }
-    if (appEl.classList.contains('editing')) return;
+    if (appEl.dataset.screen !== 'timer') return;
     if (e.code === 'Space') { e.preventDefault(); toggle(); }
     else if (e.key === 'r' || e.key === 'R') reset();
     else if (e.key === 'f' || e.key === 'F') toggleFullscreen();
-    else if (e.key === 'a' || e.key === 'A') openAgenda();
+    else if (e.key === 'e' || e.key === 'E') showSetup();
   });
 
   function wakeUi() {
-    appEl.classList.remove('hide-ui');
+    timerScreenEl.classList.remove('hide-ui');
     clearTimeout(uiTimer);
     uiTimer = setTimeout(() => {
-      if (running) appEl.classList.add('hide-ui');
+      if (running) timerScreenEl.classList.add('hide-ui');
     }, 3000);
   }
   ['mousemove', 'touchstart', 'keydown'].forEach((ev) =>
@@ -906,6 +813,7 @@
   );
   wakeUi();
 
+  renderEditor();
   buildBar();
   render();
 })();
