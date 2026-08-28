@@ -15,7 +15,6 @@
     --dim: #5c6259;
     --line: #24281f;
     --accent: #35d488;
-    --warn: #f2b134;
     --danger: #ef4a4a;
   }
   * { box-sizing: border-box; }
@@ -56,8 +55,8 @@
   }
   .corner.tl { top: 3vh; left: 3vh; border-right: none; border-bottom: none; }
   .corner.tr { top: 3vh; right: 3vh; border-left: none; border-bottom: none; }
-  .corner.bl { bottom: 4vh; left: 3vh; border-right: none; border-top: none; }
-  .corner.br { bottom: 4vh; right: 3vh; border-left: none; border-top: none; }
+  .corner.bl { bottom: 7.5vh; left: 3vh; border-right: none; border-top: none; }
+  .corner.br { bottom: 7.5vh; right: 3vh; border-left: none; border-top: none; }
 
   #segmentLabel {
     font-family: 'IBM Plex Sans', sans-serif;
@@ -72,6 +71,7 @@
   }
   #segmentLabel .count { color: var(--dim); font-weight: 400; }
   #app.agenda #segmentLabel { display: flex; }
+  #segmentLabel.seg-flash { animation: labelPop 0.5s ease-out; }
 
   #clockWrap {
     position: relative;
@@ -79,6 +79,7 @@
     align-items: baseline;
     gap: 0.03em;
   }
+  #clockWrap.seg-flash { animation: clockPop 0.6s cubic-bezier(.34,1.56,.64,1); }
   #clock, #clockInput {
     font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
     font-size: 22vw;
@@ -88,7 +89,6 @@
     letter-spacing: -0.03em;
     transition: color 0.4s ease;
   }
-  #clock.warn { color: var(--warn); }
   #clock.danger { color: var(--danger); }
   #clock.editable { cursor: text; }
   #clock.editable:hover { color: var(--accent); }
@@ -167,7 +167,7 @@
 
   #hint {
     position: fixed;
-    bottom: 5.4vh;
+    bottom: 8.4vh;
     left: 50%;
     transform: translateX(-50%);
     font-family: 'JetBrains Mono', monospace;
@@ -178,7 +178,7 @@
     white-space: nowrap;
   }
 
-  /* remaining-time bar — always visible, doubles as an agenda strip */
+  /* remaining-time bar — the main stage instrument, always on, one colour per slot */
   #barDock {
     position: fixed;
     left: 0;
@@ -186,18 +186,20 @@
     bottom: 0;
     display: flex;
     flex-direction: column;
+    padding: 0.6rem 0.6rem calc(0.7rem + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0));
   }
   #capRow {
     display: none;
-    gap: 3px;
-    padding: 0 3px 0.3rem;
+    gap: 6px;
+    padding: 0 2px 0.4rem;
   }
   #app.agenda #capRow { display: flex; }
   #capRow .cap {
     font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.78rem;
     font-weight: 600;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--dim);
     text-align: center;
@@ -210,15 +212,18 @@
   #capRow .cap.done { color: var(--dim); }
   #trackRow {
     display: flex;
-    gap: 3px;
-    height: 8px;
-    padding: 0 3px 3px;
+    gap: 6px;
+    height: 2.4vh;
+    min-height: 18px;
+    max-height: 30px;
   }
   .cell {
     position: relative;
-    background: var(--line);
-    border-radius: 2px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 5px;
     overflow: hidden;
+    transition: border-color 0.4s ease;
   }
   .cell .fill {
     position: absolute;
@@ -229,9 +234,40 @@
     background: var(--accent);
     transition: width 0.3s linear, background-color 0.4s ease;
   }
-  .cell .fill.warn { background: var(--warn); }
   .cell .fill.danger { background: var(--danger); }
   .cell .fill.done { background: var(--dim); }
+  .cell.urgent {
+    animation: urgentPulse 1s ease-in-out infinite;
+  }
+  .cell.seg-flash {
+    animation: segFlashCell 0.7s cubic-bezier(.34,1.56,.64,1), segFlashGlow 0.7s ease-out;
+    z-index: 1;
+  }
+
+  @keyframes segFlashCell {
+    0% { transform: scaleY(1); }
+    30% { transform: scaleY(2.1); }
+    100% { transform: scaleY(1); }
+  }
+  @keyframes segFlashGlow {
+    0% { box-shadow: 0 0 0 rgba(0, 0, 0, 0); }
+    30% { box-shadow: 0 0 22px 2px var(--flash-color, rgba(255, 255, 255, 0.8)); }
+    100% { box-shadow: 0 0 0 rgba(0, 0, 0, 0); }
+  }
+  @keyframes urgentPulse {
+    0%, 100% { box-shadow: 0 0 8px 1px rgba(239, 74, 74, 0.55); }
+    50% { box-shadow: 0 0 2px 0 rgba(239, 74, 74, 0.15); }
+  }
+  @keyframes labelPop {
+    0% { opacity: 0; transform: translateY(8px); }
+    60% { opacity: 1; }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes clockPop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
 
   /* agenda editor */
   #agendaPanel {
@@ -280,6 +316,12 @@
     align-items: center;
     gap: 0.6rem;
     margin-bottom: 0.55rem;
+  }
+  .segRow .swatch {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    flex: none;
   }
   .segRow input[type="text"] {
     flex: 1;
@@ -337,7 +379,7 @@
   .panelFoot .actions { display: flex; gap: 0.6rem; }
 
   @media (prefers-reduced-motion: reduce) {
-    * { transition: none !important; }
+    * { transition: none !important; animation: none !important; }
   }
 </style>
 </head>
@@ -398,10 +440,14 @@
 <script>
 (function () {
   const DEFAULT_SECONDS = 45 * 60;
+  const PALETTE = ['#35d488', '#4f9dff', '#f2b134', '#ef8a3d', '#b98ce8', '#38c6c6'];
+
   const appEl = document.getElementById('app');
   const clockEl = document.getElementById('clock');
+  const clockWrapEl = document.getElementById('clockWrap');
   const inputEl = document.getElementById('clockInput');
   const unitEl = document.getElementById('unit');
+  const segmentLabelEl = document.getElementById('segmentLabel');
   const segNameEl = document.getElementById('segName');
   const segCountEl = document.getElementById('segCount');
   const toggleBtn = document.getElementById('toggleBtn');
@@ -431,7 +477,18 @@
   let uiTimer = null;
   let editRows = [];
 
+  let cellEls = [];
+  let fillEls = [];
+  let capEls = [];
+
   function isAgenda() { return queue.length > 1; }
+  function segColor(i) { return PALETTE[i % PALETTE.length]; }
+
+  function hexToRgba(hex, a) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
+  }
 
   function format(s) {
     s = Math.max(0, Math.round(s));
@@ -440,54 +497,83 @@
     return (m < 100 ? String(m).padStart(2, '0') : String(m)) + ':' + String(sec).padStart(2, '0');
   }
 
-  function urgency(rem, total) {
-    if (rem <= 60) return 'danger';
-    if (rem <= 300 && rem < total) return 'warn';
-    return '';
-  }
+  // --- bar: built once per queue change, updated every tick ---
 
-  function renderBar() {
-    const agenda = isAgenda();
+  function buildBar() {
     trackRowEl.innerHTML = '';
     capRowEl.innerHTML = '';
+    cellEls = []; fillEls = []; capEls = [];
+    const agenda = isAgenda();
     queue.forEach((slot, i) => {
       const cell = document.createElement('div');
       cell.className = 'cell';
       cell.style.flexGrow = String(slot.seconds);
+      if (agenda) {
+        cell.style.borderColor = hexToRgba(segColor(i), 0.4);
+        cell.style.setProperty('--flash-color', hexToRgba(segColor(i), 0.9));
+      }
       const fill = document.createElement('div');
       fill.className = 'fill';
-      if (i < currentIndex) {
-        fill.style.width = '100%';
-        fill.classList.add('done');
-      } else if (i === currentIndex) {
-        const pct = 100 * (slot.seconds - remaining) / slot.seconds;
-        fill.style.width = Math.min(100, Math.max(0, pct)) + '%';
-        const u = urgency(remaining, slot.seconds);
-        if (u) fill.classList.add(u);
-      } else {
-        fill.style.width = '0%';
-      }
       cell.appendChild(fill);
       trackRowEl.appendChild(cell);
+      cellEls.push(cell);
+      fillEls.push(fill);
 
       if (agenda) {
         const cap = document.createElement('div');
         cap.className = 'cap';
-        if (i === currentIndex) cap.classList.add('current');
-        else if (i < currentIndex) cap.classList.add('done');
         cap.style.flexGrow = String(slot.seconds);
         cap.textContent = slot.name || ('Slot ' + (i + 1));
         capRowEl.appendChild(cap);
+        capEls.push(cap);
       }
     });
+  }
+
+  function updateBar() {
+    const agenda = isAgenda();
+    queue.forEach((slot, i) => {
+      const fill = fillEls[i];
+      const cell = cellEls[i];
+      let danger = false;
+      fill.classList.remove('done', 'danger');
+      if (i < currentIndex) {
+        fill.style.width = '100%';
+        fill.style.background = '';
+        fill.classList.add('done');
+      } else if (i === currentIndex) {
+        const pct = 100 * (slot.seconds - remaining) / slot.seconds;
+        fill.style.width = Math.min(100, Math.max(0, pct)) + '%';
+        danger = remaining <= 60;
+        fill.style.background = danger ? '' : (agenda ? segColor(i) : '');
+        if (danger) fill.classList.add('danger');
+      } else {
+        fill.style.width = '0%';
+        fill.style.background = '';
+      }
+      cell.classList.toggle('urgent', i === currentIndex && danger);
+      if (agenda && capEls[i]) {
+        capEls[i].classList.toggle('current', i === currentIndex);
+        capEls[i].classList.toggle('done', i < currentIndex);
+      }
+    });
+  }
+
+  function flashSegmentChange() {
+    [clockWrapEl, segmentLabelEl, cellEls[currentIndex]].forEach((el) => {
+      if (!el) return;
+      el.classList.remove('seg-flash');
+      void el.offsetWidth; // restart the animation
+      el.classList.add('seg-flash');
+      el.addEventListener('animationend', () => el.classList.remove('seg-flash'), { once: true });
+    });
+    if (navigator.vibrate) navigator.vibrate([50, 60, 50]);
   }
 
   function render() {
     const slot = queue[currentIndex];
     clockEl.textContent = format(remaining);
-    const u = urgency(remaining, slot.seconds);
-    clockEl.classList.toggle('warn', u === 'warn');
-    clockEl.classList.toggle('danger', u === 'danger');
+    clockEl.classList.toggle('danger', remaining <= 60);
     clockEl.classList.toggle('editable', !running && !isAgenda());
     unitEl.textContent = running || remaining !== slot.seconds ? 'left' : 'min';
 
@@ -499,10 +585,10 @@
     agendaBtn.disabled = running;
 
     hintEl.textContent = isAgenda()
-      ? 'space start/pause   r reset   f fullscreen   a agenda'
-      : 'space start/pause   r reset   f fullscreen   a agenda   click time to edit';
+      ? 'space start/pause   r reset   f fullscreen   a agenda'
+      : 'space start/pause   r reset   f fullscreen   a agenda   click time to edit';
 
-    renderBar();
+    updateBar();
   }
 
   function tick() {
@@ -512,7 +598,7 @@
         currentIndex++;
         remaining = queue[currentIndex].seconds;
         endTime = Date.now() + remaining * 1000;
-        if (navigator.vibrate) navigator.vibrate(120);
+        flashSegmentChange();
       } else {
         remaining = 0;
         stop();
@@ -593,6 +679,11 @@
     editRows.forEach((row, i) => {
       const r = document.createElement('div');
       r.className = 'segRow';
+
+      const swatch = document.createElement('span');
+      swatch.className = 'swatch';
+      swatch.style.background = segColor(i);
+
       const nameInput = document.createElement('input');
       nameInput.type = 'text';
       nameInput.placeholder = 'Slot name';
@@ -615,6 +706,7 @@
       rm.setAttribute('aria-label', 'Remove slot');
       rm.addEventListener('click', () => { editRows.splice(i, 1); renderEditor(); });
 
+      r.appendChild(swatch);
       r.appendChild(nameInput);
       r.appendChild(minInput);
       r.appendChild(rm);
@@ -656,6 +748,7 @@
     stop();
     currentIndex = 0;
     remaining = queue[0].seconds;
+    buildBar();
     closeAgenda();
     render();
   }
@@ -665,6 +758,7 @@
     stop();
     currentIndex = 0;
     remaining = queue[0].seconds;
+    buildBar();
     closeAgenda();
     render();
   }
@@ -717,6 +811,7 @@
   );
   wakeUi();
 
+  buildBar();
   render();
 })();
 </script>
