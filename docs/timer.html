@@ -119,6 +119,31 @@
     transform: translateY(-0.3em);
   }
 
+  /* small readout for the currently-running agenda slot, beneath the big total */
+  #slotClock {
+    display: none;
+    align-items: baseline;
+    gap: 0.5em;
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    font-size: 4.2vw;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg);
+    opacity: 0.82;
+    transition: color 0.4s ease;
+  }
+  #app.agenda #slotClock { display: flex; }
+  #slotClock.seg-flash { animation: clockPop 0.6s cubic-bezier(.34,1.56,.64,1); }
+  #slotClock.danger { color: var(--danger); opacity: 1; }
+  #slotClock .slotUnit {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
   #controls {
     display: flex;
     align-items: center;
@@ -398,6 +423,8 @@
     <span id="unit">min</span>
   </div>
 
+  <div id="slotClock"><span id="slotTime">05:00</span><span class="slotUnit">this slot</span></div>
+
   <div id="controls">
     <div id="adjust">
       <button class="step" data-delta="-5">−5</button>
@@ -447,6 +474,8 @@
   const clockWrapEl = document.getElementById('clockWrap');
   const inputEl = document.getElementById('clockInput');
   const unitEl = document.getElementById('unit');
+  const slotClockEl = document.getElementById('slotClock');
+  const slotTimeEl = document.getElementById('slotTime');
   const segmentLabelEl = document.getElementById('segmentLabel');
   const segNameEl = document.getElementById('segName');
   const segCountEl = document.getElementById('segCount');
@@ -495,6 +524,16 @@
     const m = Math.floor(s / 60);
     const sec = s % 60;
     return (m < 100 ? String(m).padStart(2, '0') : String(m)) + ':' + String(sec).padStart(2, '0');
+  }
+
+  // total across every slot, and what's left of that total from here on
+  function totalQueueSeconds() {
+    return queue.reduce((sum, s) => sum + s.seconds, 0);
+  }
+  function totalRemainingSeconds() {
+    let sum = remaining;
+    for (let i = currentIndex + 1; i < queue.length; i++) sum += queue[i].seconds;
+    return sum;
   }
 
   // --- bar: built once per queue change, updated every tick ---
@@ -562,7 +601,7 @@
   }
 
   function flashSegmentChange() {
-    [clockWrapEl, segmentLabelEl, cellEls[currentIndex]].forEach((el) => {
+    [clockWrapEl, slotClockEl, segmentLabelEl, cellEls[currentIndex]].forEach((el) => {
       if (!el) return;
       el.classList.remove('seg-flash');
       void el.offsetWidth; // restart the animation
@@ -574,10 +613,15 @@
 
   function render() {
     const slot = queue[currentIndex];
-    clockEl.textContent = format(remaining);
-    clockEl.classList.toggle('danger', remaining <= 60);
+    const totalRemaining = totalRemainingSeconds();
+
+    clockEl.textContent = format(totalRemaining);
+    clockEl.classList.toggle('danger', totalRemaining <= 60);
     clockEl.classList.toggle('editable', !running && !isAgenda());
-    unitEl.textContent = running || remaining !== slot.seconds ? 'left' : 'min';
+    unitEl.textContent = running || totalRemaining !== totalQueueSeconds() ? 'left' : 'min';
+
+    slotTimeEl.textContent = format(remaining);
+    slotClockEl.classList.toggle('danger', remaining <= 60);
 
     appEl.classList.toggle('agenda', isAgenda());
     segNameEl.textContent = slot.name || ('Slot ' + (currentIndex + 1));
