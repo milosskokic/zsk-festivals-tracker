@@ -241,7 +241,7 @@
   }
   #timerScreen.agenda #slotClock { display: flex; }
   #slotClock.seg-flash { animation: clockPop 0.6s cubic-bezier(.34,1.56,.64,1); }
-  #slotClock.danger { color: var(--danger); opacity: 1; }
+  #slotClock.danger { opacity: 1; }
   #slotClock .slotUnit {
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 0.85rem;
@@ -584,8 +584,8 @@
         fill.style.background = '';
         fill.classList.add('done');
       } else if (i === currentIndex) {
-        // remaining time in the active slot: starts full, drains to empty
-        const pct = 100 * remaining / slot.seconds;
+        // elapsed time in the active slot: starts empty, fills left-to-right (matches the playhead)
+        const pct = 100 * (slot.seconds - remaining) / slot.seconds;
         fill.style.width = Math.min(100, Math.max(0, pct)) + '%';
         danger = remaining <= 60;
         fill.style.background = danger ? '' : (agenda ? segColor(i) : '');
@@ -629,8 +629,10 @@
     clockEl.classList.toggle('danger', totalRemaining <= 60);
     unitEl.textContent = running || totalRemaining !== totalQueueSeconds() ? 'left' : 'min';
 
+    const slotDanger = remaining <= 60;
     slotTimeEl.textContent = format(remaining);
-    slotClockEl.classList.toggle('danger', remaining <= 60);
+    slotTimeEl.style.color = slotDanger ? 'var(--danger)' : (isAgenda() ? segColor(currentIndex) : '');
+    slotClockEl.classList.toggle('danger', slotDanger);
 
     timerScreenEl.classList.toggle('agenda', isAgenda());
     segNameEl.textContent = slot.name || ('Slot ' + (currentIndex + 1));
