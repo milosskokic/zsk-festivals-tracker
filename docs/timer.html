@@ -10,7 +10,7 @@
 <style>
   :root {
     --bg: #0a0c0a;
-    --panel: #12150f;
+    --panel: #1a1f16;
     --fg: #eef1ec;
     --dim: #5c6259;
     --line: #24281f;
@@ -508,8 +508,8 @@
       const cell = document.createElement('div');
       cell.className = 'cell';
       cell.style.flexGrow = String(slot.seconds);
+      cell.style.borderColor = agenda ? hexToRgba(segColor(i), 0.55) : 'rgba(255, 255, 255, 0.18)';
       if (agenda) {
-        cell.style.borderColor = hexToRgba(segColor(i), 0.4);
         cell.style.setProperty('--flash-color', hexToRgba(segColor(i), 0.9));
       }
       const fill = document.createElement('div');
@@ -538,11 +538,13 @@
       let danger = false;
       fill.classList.remove('done', 'danger');
       if (i < currentIndex) {
+        // already spent: shown as a fully consumed (dim) bucket, not "remaining"
         fill.style.width = '100%';
         fill.style.background = '';
         fill.classList.add('done');
       } else if (i === currentIndex) {
-        const pct = 100 * (slot.seconds - remaining) / slot.seconds;
+        // remaining time in the active slot: starts full, drains to empty
+        const pct = 100 * remaining / slot.seconds;
         fill.style.width = Math.min(100, Math.max(0, pct)) + '%';
         danger = remaining <= 60;
         fill.style.background = danger ? '' : (agenda ? segColor(i) : '');
